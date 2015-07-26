@@ -1,0 +1,117 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-09 11:14+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: painthon.glade:1502
+msgid "Alpha 1:"
+msgstr "Alfa 1:"
+
+#: painthon.glade:1514
+msgid "Alpha 2:"
+msgstr "Alfa 2:"
+
+#: painthon.glade:257
+msgid "Attributes..."
+msgstr "Atributs..."
+
+#: painthon.glade:265
+msgid "Clear Image"
+msgstr "Esborra la imatge"
+
+#: painthon.glade:148
+msgid "Color Box"
+msgstr "Paleta de colors"
+
+#: painthon.glade:273
+msgid "Draw Opaque"
+msgstr "Dibuixa opac"
+
+#: painthon.glade:233
+msgid "Flip/Rotate..."
+msgstr "Volteja/gira..."
+
+#: painthon.glade:249
+msgid "Invert Colors..."
+msgstr "Inverteix els colors..."
+
+#: painthon.glade:157
+msgid "Status Bar"
+msgstr "Barra d'estat"
+
+#: painthon.glade:241
+msgid "Stretch/Skew..."
+msgstr ""
+
+#: painthon.glade:166
+msgid "Text Toolbar"
+msgstr "Barra d'eines de text"
+
+#: painthon.glade:139
+msgid "Tool Box"
+msgstr "Barra d'eines"
+
+#: painthon.glade:213
+msgid "View Bitmap"
+msgstr "Mostra el mapa de bits"
+
+#: painthon.glade:179
+msgid "Zoom"
+msgstr "Zoom"
+
+#: painthon.glade:286
+msgid "_Colors"
+msgstr "_Colors"
+
+#: painthon.glade:82
+msgid "_Edit"
+msgstr "_Edita"
+
+#: painthon.glade:20
+msgid "_File"
+msgstr "_Fitxer"
+
+#: painthon.glade:312
+msgid "_Help"
+msgstr "_Ajuda"
+
+#: painthon.glade:224
+msgid "_Image"
+msgstr "_Imatge"
+
+#: painthon.glade:130
+msgid "_View"
+msgstr "_Mostra"
+
+#: painthon.glade:294
+msgid "menuitem5"
+msgstr ""
+
+#: painthon.glade:301
+msgid "menuitem6"
+msgstr ""
+
+#: painthon.glade:187
+msgid "x1"
+msgstr "x1"
+
+#: painthon.glade:194
+msgid "x2"
+msgstr "x2"
+
+#: painthon.glade:201
+msgid "x4"
+msgstr "x4"
