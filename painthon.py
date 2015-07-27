@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 # Import packages
-#import pygtk
-#pygtk.require("2.0")
+
 import gtk
 import gettext
 import os
@@ -60,6 +59,9 @@ class Painthon():
                       "eraser"          : EraserTool(self.CANVAS),
                       "color-picker"    : ColorPickerTool(self.CANVAS),
                       "draw-ellipse"    : EllipseTool(self.CANVAS) }
+
+
+        self.CANVAS.print_tool()
 
 
     def quit(self, main_window):

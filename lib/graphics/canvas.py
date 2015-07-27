@@ -12,6 +12,8 @@ class Canvas(gtk.DrawingArea):
     active_tool = None
     printing_tool = False
     image_type = 0
+    
+
 
     def __init__(self):
         # Initializing superclass
@@ -36,7 +38,9 @@ class Canvas(gtk.DrawingArea):
 
         # Final canvas
         self.CANVAS = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
-
+        
+        aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        
 
     def reset(self, context):
         # Clipping to draw area
@@ -69,7 +73,8 @@ class Canvas(gtk.DrawingArea):
 
 
     def button_pressed(self, widget, event):
-        self.active_tool.begin(event.x, event.y)
+        if event.type == gtk.gdk.BUTTON_PRESS:
+            self.active_tool.begin(event.x, event.y)
 
 
     def button_released(self, widget, event):
