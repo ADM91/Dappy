@@ -31,7 +31,6 @@ class Canvas(gtk.DrawingArea):
         self.connect("motion-notify-event", self.motion_event)
 
         self.set_size(550, 412)
-        self.image = cairo.ImageSurface.create_from_png("examples/flower.png")
         self.ALPHA_PATTERN = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("pixmaps/alpha-pattern.png"))
         self.ALPHA_PATTERN.set_extend(cairo.EXTEND_REPEAT)
 
