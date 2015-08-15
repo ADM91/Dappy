@@ -9,7 +9,6 @@ class ColorCell(gtk.DrawingArea):
     WIDTH = 25
     HEIGHT = 20
     ASS = 7
-    alpha_scroll = False
 
     def __init__(self, red=0, green=0, blue=0, alpha=1):
         super(ColorCell, self).__init__()
@@ -20,7 +19,6 @@ class ColorCell(gtk.DrawingArea):
 
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.SCROLL)
         self.connect("button-press-event", self.clicked)
-        self.connect("scroll-event", self.modify_alpha_event)
         self.connect("expose-event", self.expose)
 
 
@@ -83,23 +81,6 @@ class ColorCell(gtk.DrawingArea):
         csd.destroy()
 
 
-    def modify_alpha_event(self, widget, event):
-        if not self.alpha_scroll:
-            return
-
-        if event.direction == gtk.gdk.SCROLL_UP:
-            incr = +0.05
-        else:
-            incr = -0.05
-        self.color.set_alpha(self.color.get_alpha()+incr)
-
-        try:
-            rect = gtk.gdk.Rectangle(0, 0, self.WIDTH, self.HEIGHT)
-            self.window.invalidate_rect(rect, True)
-        except:
-            pass
-
-
     def clicked(self, widget, event):
         if event.type == gtk.gdk._2BUTTON_PRESS:
             self.modify_color(widget)
@@ -111,8 +92,6 @@ class ColorCell(gtk.DrawingArea):
         return "ColorCell: " + self.color.to_string()
 
 
-    def enable_scroll_to_modify_alpha(self):
-        self.alpha_scroll = True
 
 
 # Registering signals

@@ -3,7 +3,7 @@ import math
 from generic import DragAndDropTool
 
 class RectangleTool(DragAndDropTool):
-
+    name = 'RoundedRectangle';
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -18,7 +18,7 @@ class RectangleTool(DragAndDropTool):
 
 
 class RoundedRectangleTool(DragAndDropTool):
-
+    name = 'RoundedRectangle';
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -30,14 +30,14 @@ class RoundedRectangleTool(DragAndDropTool):
         context.fill_preserve()
         self.use_primary_color(context)
         context.save()
-        context.set_line_width(50)
+        context.set_line_width(5)
         context.set_line_join(cairo.LINE_JOIN_ROUND)
         context.stroke()
         context.restore()
 
 
 class EllipseTool(DragAndDropTool):
-
+    name = 'Ellipse';
     def draw(self, context):
         if self.mode == self.READY:
             return

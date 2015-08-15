@@ -1,49 +1,66 @@
-from array import array
-import Image
 import struct
+import gobject
 from ctypes import create_string_buffer
 
 
 from generic import Tool
 from generic import DragAndDropTool
-from lib.graphics.imageutils import ImageUtils
 
-import time
 
 class ColorPickerTool(DragAndDropTool):
-    pixels = None
+    name = 'ColorPicker';
+    pixels = None;
+    data = None;
+    bpp= None;
+    w = None;
+    s = None;
+    col = None;
 
 
-    def begin(self, x, y):
+    def begin(self, x, y,button):
         self.mode = self.DRAWING
-        self.pixels = ImageUtils.create_image_from_surface(self.canvas.CANVAS).load()
-        print self.pixels[x, y]
+        surface = self.canvas.get_image()
+        self.w = surface.get_width()
+        self.s = surface.get_stride()
+        self.bpp = self.s/self.w
+        self.data = surface.get_data()
+        act_px = int(y*self.s+x*self.bpp)
+        col_bin = self.data[act_px:act_px+4]
+        self.col = struct.unpack_from(str(self.bpp)+'B',col_bin)
+
 
 
     def end(self, x, y):
         self.mode = self.READY
-        print self.pixels[x, y]
+        
 
 
     def move(self, x, y):
         if self.mode == self.DRAWING:
-            print self.pixels[x, y]
+            act_px = int(y*self.s+x*self.bpp)
+            col_bin = self.data[act_px:act_px+4]
+            self.col = struct.unpack_from(str(self.bpp)+'B',col_bin)
+
+            
 
 
 
 class BucketFillTool(Tool):
-    def begin(self, x, y):
-              
+    name = 'BucketFill';
+    def begin(self, x, y,button):
         self.mode = self.DRAWING
         surface = self.canvas.get_image()
 
         w = surface.get_width()
         h = surface.get_height()
         s = surface.get_stride()
-        bpp = s/w;
+        bpp = s/w
         data = surface.get_data()
         
-        pc = self.primary   
+        if button==3:
+            pc=self.secondary
+        else:
+            pc = self.primary   
         act_px = int(y*s+x*bpp)      
         orr_c = data[act_px:act_px+4]
         rep_c = create_string_buffer(4)

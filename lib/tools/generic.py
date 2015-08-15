@@ -3,7 +3,7 @@ from lib.graphics.rgbacolor import RGBAColor
 
 # Class
 # ==============================================================================
-class Tool:
+class Tool(gtk.Object):
     READY = 0
     DRAWING = 1
     EDITING = 2
@@ -21,7 +21,7 @@ class Tool:
     def select(self):
         self.canvas.window.set_cursor(self.CURSOR)
 
-    def begin(self, x, y):
+    def begin(self, x, y,button):
         self.mode = self.DRAWING
 
     def end(self, x, y):
@@ -60,14 +60,16 @@ class DragAndDropTool(Tool):
     initial_y = 0
     final_x = 0
     final_y = 0
+    
+    m_button = None
 
-
-    def begin(self, x, y):
-        Tool.begin(self, x, y)
+    def begin(self, x, y,button):
+        Tool.begin(self, x, y,button)
         self.initial_x = x
         self.initial_y = y
         self.final_x = x
         self.final_y = y
+        self.m_button=button
 
 
     def end(self, x, y):

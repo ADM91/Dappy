@@ -3,9 +3,11 @@ from generic import DragAndDropTool
 
 class PencilTool(DragAndDropTool):
     points = None
+    name = 'Pencil';
 
-    def begin(self, x, y):
-        DragAndDropTool.begin(self, x, y)
+    def begin(self, x, y,button):
+        self.m_button=button
+        DragAndDropTool.begin(self, x, y,button)
         self.points = list()
 
 
@@ -23,11 +25,16 @@ class PencilTool(DragAndDropTool):
             return
 
         context.save()
-
+        context.set_antialias(cairo.ANTIALIAS_NONE)
         context.set_line_cap(cairo.LINE_CAP_ROUND)
         context.set_line_join(cairo.LINE_JOIN_ROUND)
         context.move_to(self.initial_x, self.initial_y)
-        self.use_primary_color(context)
+        
+        if self.m_button==3:
+            self.use_secondary_color(context)
+        else:
+            self.use_primary_color(context)
+        
         for point in self.points:
             context.line_to(point[0], point[1])
         context.stroke()
@@ -37,18 +44,22 @@ class PencilTool(DragAndDropTool):
 
 
 class EraserTool(PencilTool):
-
+    name = 'Eraser';
     def draw(self, context):
         if self.mode == self.READY:
             return
 
         context.save()
 
-        context.set_line_cap(cairo.LINE_CAP_ROUND)
-        context.set_line_join(cairo.LINE_JOIN_ROUND)
+        context.set_antialias(cairo.ANTIALIAS_NONE)
+        context.set_line_cap(cairo.LINE_CAP_SQUARE)
+        context.set_line_join(cairo.LINE_JOIN_MITER)
         context.move_to(self.initial_x, self.initial_y)
         context.set_line_width(8)
-        self.use_secondary_color(context)
+        if self.m_button==3:
+            self.use_primary_color(context)
+        else:
+            self.use_secondary_color(context)
         for point in self.points:
             context.line_to(point[0], point[1])
         context.stroke()
@@ -57,7 +68,7 @@ class EraserTool(PencilTool):
 
 
 class PaintbrushTool(PencilTool):
-
+    name = 'PaintBrush';
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -68,7 +79,10 @@ class PaintbrushTool(PencilTool):
         context.set_line_join(cairo.LINE_JOIN_ROUND)
         context.move_to(self.initial_x, self.initial_y)
         context.set_line_width(8)
-        self.use_primary_color(context)
+        if self.m_button==3:
+            self.use_secondary_color(context)
+        else:
+            self.use_primary_color(context)
         for point in self.points:
             context.line_to(point[0], point[1])
         context.stroke()

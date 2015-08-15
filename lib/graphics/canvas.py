@@ -1,8 +1,10 @@
 import cairo
 import gtk
 import math
+import gobject
 
 from lib.tools.generic import *
+from rgbacolor import RGBAColor
 
 class Canvas(gtk.DrawingArea):
     TRANSPARENT_IMAGE = 0
@@ -12,6 +14,7 @@ class Canvas(gtk.DrawingArea):
     active_tool = None
     printing_tool = False
     image_type = 0
+    picker_col = None
     
 
 
@@ -38,8 +41,6 @@ class Canvas(gtk.DrawingArea):
 
         # Final canvas
         self.CANVAS = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
-        
-        aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
         
 
     def reset(self, context):
@@ -74,17 +75,21 @@ class Canvas(gtk.DrawingArea):
 
     def button_pressed(self, widget, event):
         if event.type == gtk.gdk.BUTTON_PRESS:
-            self.active_tool.begin(event.x, event.y)
+            self.active_tool.begin(event.x, event.y,event.button)
+            
 
 
     def button_released(self, widget, event):
         self.active_tool.end(event.x, event.y)
         self.swap_buffers()
         self.active_tool.commit()
-
+        if self.active_tool.name == "ColorPicker":
+            col = self.active_tool.col
+            self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
+            self.emit("color_pick_event", event)
 
     def move_event(self, widget, event):
-        context = widget.window.cairo_create()
+        #context = widget.window.cairo_create()
         self.active_tool.move(event.x, event.y)
         self.swap_buffers()
 
@@ -152,3 +157,8 @@ class Canvas(gtk.DrawingArea):
 
     def set_image_type(self, image_type):
         self.image_type = image_type
+        
+    def get_color(self):
+        return self.picker_col
+
+gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))

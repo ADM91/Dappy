@@ -27,6 +27,9 @@ class Painthon():
 
     primary = None
     secondary = None
+    
+    Tools = None
+    picker = None
 
     def __init__(self, path, image_filename=None):
 
@@ -57,9 +60,11 @@ class Painthon():
                       "paintbrush"      : PaintbrushTool(self.CANVAS),
                       "bucket-fill"     : BucketFillTool(self.CANVAS),
                       "eraser"          : EraserTool(self.CANVAS),
-                      "color-picker"    : ColorPickerTool(self.CANVAS),
-                      "draw-ellipse"    : EllipseTool(self.CANVAS) }
+                      "draw-ellipse"    : EllipseTool(self.CANVAS), 
+                      "color-picker"    : ColorPickerTool(self.CANVAS)}
 
+
+        
 
         self.CANVAS.print_tool()
 

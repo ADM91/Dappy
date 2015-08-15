@@ -23,7 +23,9 @@ class GUI():
 
     def __init__(self, painthon):
         self.PAINTHON = painthon
-
+        
+        #self.PAINTHON.picker.connect("color-changed-event", self.color_changed)
+        self.PAINTHON.CANVAS.connect("color_pick_event", self.color_changed)
         builder = gtk.Builder()
         builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "painthon.xml"))
 
@@ -51,12 +53,10 @@ class GUI():
 
         # Initialize working colors
         self.primary = ColorCell(0, 0, 0)
-        self.primary.enable_scroll_to_modify_alpha()
         self.primary.connect("color-changed-event", self.color_changed)
         primary_frame = builder.get_object("primary-color")
         primary_frame.add(self.primary)
         self.secondary = ColorCell(1, 1, 1)
-        self.secondary.enable_scroll_to_modify_alpha()
         self.secondary.connect("color-changed-event", self.color_changed)
         secondary_frame = builder.get_object("secondary-color")
         secondary_frame.add(self.secondary)
@@ -122,15 +122,24 @@ class GUI():
 
 
     def color_changed(self, widget, event):
-        c = widget.get_color()
-        if event.button == 1:
-            c.set_alpha(self.PAINTHON.get_primary_color().get_alpha())
+        if widget==self.primary:
+            self.primary.modify_color(widget)
+            c = widget.get_color()
             self.PAINTHON.set_primary_color(c)
-            self.primary.set_color(c)
-        elif event.button == 3:
-            c.set_alpha(self.PAINTHON.get_secondary_color().get_alpha())
+        elif widget==self.secondary:
+            self.secondary.modify_color(widget)
+            c = widget.get_color()
             self.PAINTHON.set_secondary_color(c)
-            self.secondary.set_color(c)
+        else:
+            c = widget.get_color()
+            if event.button == 1:
+                c.set_alpha(self.PAINTHON.get_primary_color().get_alpha())
+                self.PAINTHON.set_primary_color(c)
+                self.primary.set_color(c)
+            elif event.button == 3:
+                c.set_alpha(self.PAINTHON.get_secondary_color().get_alpha())
+                self.PAINTHON.set_secondary_color(c)
+                self.secondary.set_color(c)
 
 
     def change_tool_gui(self, newtool):
