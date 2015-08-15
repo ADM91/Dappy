@@ -202,3 +202,6 @@ class GUI():
 
     def undo(self, widget):
         self.PAINTHON.undo()
+        
+    def delete(self, widget):
+        self.PAINTHON.delete()

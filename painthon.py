@@ -156,6 +156,9 @@ class Painthon():
 
     def undo(self):
         print "undo"
+        
+    def undo(self):
+        print "delete"
 
 
     def is_modified(self):
