@@ -28,8 +28,8 @@ class Tool(gtk.Object):
         h = self.canvas.CANVAS.get_height()
         s = self.canvas.CANVAS.get_stride()
         data = self.canvas.CANVAS.get_data()
-        self.canvas.UNDO_BUFFER.Buffer = create_string_buffer(s*h)
-        self.canvas.UNDO_BUFFER.Buffer[:] = data[:]    
+        self.canvas.UNDO_BUFFER.Buffer[0] = create_string_buffer(s*h)
+        self.canvas.UNDO_BUFFER.Buffer[0][:] = data[:]    
         self.canvas.UNDO_BUFFER.width = w
         self.canvas.UNDO_BUFFER.height = h
         self.canvas.UNDO_BUFFER.ready = 1

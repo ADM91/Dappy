@@ -161,7 +161,6 @@ class Painthon():
 
     def undo(self):
         self.CANVAS.undo()
-        print "undo"
         
     def delete(self):
         print "delete"
@@ -185,7 +184,6 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         filename = sys.argv[1]
     
-    print filename
     default_path = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 

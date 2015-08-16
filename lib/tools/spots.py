@@ -22,6 +22,7 @@ class ColorPickerTool(DragAndDropTool):
         self.m_button=button
         surface = self.canvas.get_image()
         self.w = surface.get_width()
+        self.h = surface.get_height()
         self.s = surface.get_stride()
         self.bpp = self.s/self.w
         self.data = surface.get_data()
@@ -39,10 +40,11 @@ class ColorPickerTool(DragAndDropTool):
 
     def move(self, x, y):
         if self.mode == self.DRAWING:
-            act_px = int(y*self.s+x*self.bpp)
-            col_bin = self.data[act_px:act_px+4]
-            col_int = struct.unpack_from(str(self.bpp)+'B',col_bin)
-            self.col = [float(i)/255 for i in col_int]
+            if x<self.w and y<self.h and x>=0 and y>=0:
+                act_px = int(y*self.s+x*self.bpp)
+                col_bin = self.data[act_px:act_px+4]
+                col_int = struct.unpack_from(str(self.bpp)+'B',col_bin)
+                self.col = [float(i)/255 for i in col_int]
 
             
 

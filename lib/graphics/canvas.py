@@ -1,18 +1,20 @@
 import cairo
 import gtk
-import math
 import gobject
-import struct
+
 
 from lib.tools.generic import *
 from rgbacolor import RGBAColor
-from ctypes import create_string_buffer
 
 class undoBuffer:
     ready = 0    
+    n_buf = 5
     Buffer = None
     width = 0
     height = 0
+    
+    def __init__(self):
+        self.Buffer = [None for i in range(self.n_buf+1)]
 
 class Canvas(gtk.DrawingArea):
     TRANSPARENT_IMAGE = 0
@@ -29,7 +31,7 @@ class Canvas(gtk.DrawingArea):
 
 
     def __init__(self):
-        # Initializing superclass
+        # Initializing gtk.DrawingArea superclass
         super(Canvas, self).__init__()
 
         # Registering events
@@ -188,7 +190,7 @@ class Canvas(gtk.DrawingArea):
             self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
             self.print_tool()
             data = self.CANVAS.get_data()
-        data[:] = self.UNDO_BUFFER.Buffer[:]
+        data[:] = self.UNDO_BUFFER.Buffer[0][:]
         self.swap_buffers()
         
 

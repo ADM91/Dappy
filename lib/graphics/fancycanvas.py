@@ -10,7 +10,7 @@ class FancyCanvas(Canvas):
     RSS = 0
 
     def __init__(self):
-        # Initializing superclass
+        # Initializing Canvas superclass
         super(FancyCanvas, self).__init__()
 
         # Resize Square Size
