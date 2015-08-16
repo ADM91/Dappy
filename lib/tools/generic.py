@@ -24,10 +24,10 @@ class Tool(gtk.Object):
         self.canvas.window.set_cursor(self.CURSOR)
 
     def begin(self, x, y,button):
-        w = self.canvas.CANVAS.get_width()
-        h = self.canvas.CANVAS.get_height()
-        s = self.canvas.CANVAS.get_stride()
-        data = self.canvas.CANVAS.get_data()
+        w = self.canvas.surface.get_width()
+        h = self.canvas.surface.get_height()
+        s = self.canvas.surface.get_stride()
+        data = self.canvas.surface.get_data()
         self.canvas.UNDO_BUFFER.Buffer[0] = create_string_buffer(s*h)
         self.canvas.UNDO_BUFFER.Buffer[0][:] = data[:]    
         self.canvas.UNDO_BUFFER.width = w

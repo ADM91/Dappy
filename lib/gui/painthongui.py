@@ -25,7 +25,7 @@ class GUI():
         self.PAINTHON = painthon
         
         #self.PAINTHON.picker.connect("color-changed-event", self.color_changed)
-        self.PAINTHON.CANVAS.connect("color_pick_event", self.color_changed)
+        self.PAINTHON.canvas.connect("color_pick_event", self.color_changed)
         builder = gtk.Builder()
         builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "painthon.xml"))
 

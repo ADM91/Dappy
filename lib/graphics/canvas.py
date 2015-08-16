@@ -50,8 +50,8 @@ class Canvas(gtk.DrawingArea):
         self.DUMMY_TOOL = Tool(self)
         self.active_tool = self.DUMMY_TOOL
 
-        # Final canvas
-        self.CANVAS = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        # Surface is the space in the canvas
+        self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
         
 
     def reset(self, context):
@@ -123,7 +123,7 @@ class Canvas(gtk.DrawingArea):
         context = cairo.Context(aux)
         self.printing_tool = True
         self.draw(context)
-        self.CANVAS = aux
+        self.surface = aux
         self.printing_tool = False
         
 
@@ -143,7 +143,7 @@ class Canvas(gtk.DrawingArea):
         self.reset(context)
 
         source = context.get_source()
-        context.set_source_surface(self.CANVAS)
+        context.set_source_surface(self.surface)
         context.paint()
         context.set_source(source)
 
@@ -167,11 +167,11 @@ class Canvas(gtk.DrawingArea):
 
 
     def get_image(self):
-        return self.CANVAS
+        return self.surface
 
 
     def set_image(self, surface):
-        self.CANVAS = surface
+        self.surface = surface
         self.set_size(surface.get_width(), surface.get_height())
 
 
@@ -182,14 +182,14 @@ class Canvas(gtk.DrawingArea):
         return self.picker_col
         
     def undo(self):
-        data = self.CANVAS.get_data()
-        w = self.CANVAS.get_width()
-        h = self.CANVAS.get_height()
+        data = self.surface.get_data()
+        w = self.surface.get_width()
+        h = self.surface.get_height()
 
         if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
             self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
             self.print_tool()
-            data = self.CANVAS.get_data()
+            data = self.surface.get_data()
         data[:] = self.UNDO_BUFFER.Buffer[0][:]
         self.swap_buffers()
         

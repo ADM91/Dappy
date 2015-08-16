@@ -20,7 +20,7 @@ from lib.tools.spots import *
 _ = gettext.gettext
 
 class Painthon():
-    CANVAS = None
+    canvas = None
     READWRITE = None
     
 
@@ -36,8 +36,8 @@ class Painthon():
     def __init__(self, path, image_filename=None):
 
         # Initialize canvas
-        self.CANVAS = FancyCanvas()
-        self.CANVAS.set_image_type(FancyCanvas.OPAQUE_IMAGE)
+        self.canvas = FancyCanvas()
+        self.canvas.set_image_type(FancyCanvas.OPAQUE_IMAGE)
         
         self.UNDO_BUFFER = FancyCanvas()
 
@@ -57,20 +57,20 @@ class Painthon():
         self.secondary = RGBAColor(1, 1, 1, 1)
 
         # Defining tools
-        self.TOOLS = {"draw-rounded-rectangle" : RoundedRectangleTool(self.CANVAS),
-                      "draw-rectangle"  : RectangleTool(self.CANVAS),
-                      "straight-line"   : StraightLineTool(self.CANVAS),
-                      "pencil"          : PencilTool(self.CANVAS),
-                      "paintbrush"      : PaintbrushTool(self.CANVAS),
-                      "bucket-fill"     : BucketFillTool(self.CANVAS),
-                      "eraser"          : EraserTool(self.CANVAS),
-                      "draw-ellipse"    : EllipseTool(self.CANVAS), 
-                      "color-picker"    : ColorPickerTool(self.CANVAS)}
+        self.TOOLS = {"draw-rounded-rectangle" : RoundedRectangleTool(self.canvas),
+                      "draw-rectangle"  : RectangleTool(self.canvas),
+                      "straight-line"   : StraightLineTool(self.canvas),
+                      "pencil"          : PencilTool(self.canvas),
+                      "paintbrush"      : PaintbrushTool(self.canvas),
+                      "bucket-fill"     : BucketFillTool(self.canvas),
+                      "eraser"          : EraserTool(self.canvas),
+                      "draw-ellipse"    : EllipseTool(self.canvas), 
+                      "color-picker"    : ColorPickerTool(self.canvas)}
 
 
         
 
-        self.CANVAS.print_tool()
+        self.canvas.print_tool()
 
 
     def quit(self, main_window):
@@ -82,7 +82,7 @@ class Painthon():
 
 
     def change_tool(self, toolname):
-        self.CANVAS.set_active_tool(self.TOOLS[toolname])
+        self.canvas.set_active_tool(self.TOOLS[toolname])
 
 
     def set_primary_color(self, c):
@@ -115,12 +115,12 @@ class Painthon():
 
 
     def save(self):
-        canonical_filename = self.READWRITE.save(self.CANVAS.get_image(), self.path, self.filename)
+        canonical_filename = self.READWRITE.save(self.canvas.get_image(), self.path, self.filename)
         self.__fix_image_info(canonical_filename)
 
 
     def save_as(self):
-        canonical_filename = self.READWRITE.save_as(self.CANVAS.get_image(), self.path, self.filename)
+        canonical_filename = self.READWRITE.save_as(self.canvas.get_image(), self.path, self.filename)
         self.__fix_image_info(canonical_filename)
 
 
@@ -129,8 +129,8 @@ class Painthon():
             return
 
         canonical_filename = image_info[0]
-        self.CANVAS.set_image(image_info[1])
-        self.CANVAS.set_image_type(image_info[2])
+        self.canvas.set_image(image_info[1])
+        self.canvas.set_image_type(image_info[2])
         self.__fix_image_info(canonical_filename)
 
 
@@ -160,7 +160,7 @@ class Painthon():
 
 
     def undo(self):
-        self.CANVAS.undo()
+        self.canvas.undo()
         
     def delete(self):
         print "delete"
@@ -171,7 +171,7 @@ class Painthon():
         return False
 
     def get_canvas(self):
-        return self.CANVAS
+        return self.canvas
 
     def update_undo_buffer(self):
         return False
