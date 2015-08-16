@@ -3,7 +3,7 @@ import math
 from generic import DragAndDropTool
 
 class RectangleTool(DragAndDropTool):
-    name = 'RoundedRectangle';
+    name = 'Rectangle'
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -18,7 +18,7 @@ class RectangleTool(DragAndDropTool):
 
 
 class RoundedRectangleTool(DragAndDropTool):
-    name = 'RoundedRectangle';
+    name = 'RoundedRectangle'
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -37,7 +37,7 @@ class RoundedRectangleTool(DragAndDropTool):
 
 
 class EllipseTool(DragAndDropTool):
-    name = 'Ellipse';
+    name = 'Ellipse'
     def draw(self, context):
         if self.mode == self.READY:
             return

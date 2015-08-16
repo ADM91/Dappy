@@ -3,7 +3,7 @@ from generic import DragAndDropTool
 
 class PencilTool(DragAndDropTool):
     points = None
-    name = 'Pencil';
+    name = 'Pencil'
 
     def begin(self, x, y,button):
         self.m_button=button

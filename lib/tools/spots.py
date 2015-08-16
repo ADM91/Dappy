@@ -26,7 +26,9 @@ class ColorPickerTool(DragAndDropTool):
         self.data = surface.get_data()
         act_px = int(y*self.s+x*self.bpp)
         col_bin = self.data[act_px:act_px+4]
-        self.col = struct.unpack_from(str(self.bpp)+'B',col_bin)
+        col_int = struct.unpack_from(str(self.bpp)+'B',col_bin)
+        self.col = [float(i)/255 for i in col_int]
+        print self.col
 
 
 
@@ -48,6 +50,8 @@ class ColorPickerTool(DragAndDropTool):
 class BucketFillTool(Tool):
     name = 'BucketFill';
     def begin(self, x, y,button):
+        
+        Tool.begin(self, x, y,button)
         self.mode = self.DRAWING
         surface = self.canvas.get_image()
 
@@ -62,22 +66,22 @@ class BucketFillTool(Tool):
         else:
             pc = self.primary   
         act_px = int(y*s+x*bpp)      
-        orr_c = data[act_px:act_px+4]
-        rep_c = create_string_buffer(4)
+        orr_c = data[act_px:act_px+bpp]
+        rep_c = create_string_buffer(bpp)
         struct.pack_into(str(bpp)+'B',rep_c,0,int(pc.get_blue()*255), int(pc.get_green()*255),
                          int(pc.get_red()*255), int(pc.get_alpha()*255))
         
 
-        if orr_c != rep_c[0:4]:
-            pxstack = [-1] * (h*w*4)
+        if orr_c != rep_c[0:bpp]:
+            pxstack = [-1] * (h*w*bpp)
             pxstack[0] = act_px
             readc=0
             writec=1
             while pxstack[readc]!=-1:
                 act_px = pxstack[readc]
                 readc+=1
-                if data[act_px:act_px+4]==orr_c:
-                    data[act_px:act_px+4]=rep_c
+                if data[act_px:act_px+bpp]==orr_c:
+                    data[act_px:act_px+bpp]=rep_c
                     if act_px-s>=0:
                         pxstack[writec]=(act_px-s)
                         writec+=1

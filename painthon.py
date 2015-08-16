@@ -6,6 +6,7 @@ import gtk
 import gettext
 import os
 import sys
+import copy
 
 from lib.gui.painthongui import GUI
 from lib.graphics.fancycanvas import FancyCanvas
@@ -21,6 +22,7 @@ _ = gettext.gettext
 class Painthon():
     CANVAS = None
     READWRITE = None
+    
 
     filename = None
     path = None
@@ -36,6 +38,8 @@ class Painthon():
         # Initialize canvas
         self.CANVAS = FancyCanvas()
         self.CANVAS.set_image_type(FancyCanvas.OPAQUE_IMAGE)
+        
+        self.UNDO_BUFFER = FancyCanvas()
 
         # Initialize readers/writers
         self.READWRITE = ImageFile()
@@ -147,6 +151,7 @@ class Painthon():
 
 
     def paste(self):
+        self.update_undo_buffer()
         print "paste"
 
 
@@ -155,9 +160,10 @@ class Painthon():
 
 
     def undo(self):
+        self.CANVAS.undo()
         print "undo"
         
-    def undo(self):
+    def delete(self):
         print "delete"
 
 
@@ -167,6 +173,9 @@ class Painthon():
 
     def get_canvas(self):
         return self.CANVAS
+
+    def update_undo_buffer(self):
+        return False
 
 
 

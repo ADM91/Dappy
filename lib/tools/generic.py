@@ -1,5 +1,6 @@
 import gtk
 from lib.graphics.rgbacolor import RGBAColor
+from ctypes import create_string_buffer
 
 # Class
 # ==============================================================================
@@ -7,6 +8,7 @@ class Tool(gtk.Object):
     READY = 0
     DRAWING = 1
     EDITING = 2
+    name = 'NotSet'
 
     CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
 
@@ -22,6 +24,15 @@ class Tool(gtk.Object):
         self.canvas.window.set_cursor(self.CURSOR)
 
     def begin(self, x, y,button):
+        w = self.canvas.CANVAS.get_width()
+        h = self.canvas.CANVAS.get_height()
+        s = self.canvas.CANVAS.get_stride()
+        data = self.canvas.CANVAS.get_data()
+        self.canvas.UNDO_BUFFER.Buffer = create_string_buffer(s*h)
+        self.canvas.UNDO_BUFFER.Buffer[:] = data[:]    
+        self.canvas.UNDO_BUFFER.width = w
+        self.canvas.UNDO_BUFFER.height = h
+        self.canvas.UNDO_BUFFER.ready = 1
         self.mode = self.DRAWING
 
     def end(self, x, y):
@@ -87,7 +98,11 @@ class DragAndDropTool(Tool):
 # ==============================================================================
 class BothScalingTool(Tool):
     CURSOR = gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER)
+    name = 'BothScale'
 
+    def begin(self, x, y,button):
+        Tool.begin(self, x, y,button)    
+    
     def move(self, x, y):
         self.canvas.set_size(int(x), int(y))
 
@@ -96,6 +111,10 @@ class BothScalingTool(Tool):
 # ==============================================================================
 class HorizontalScalingTool(Tool):
     CURSOR = gtk.gdk.Cursor(gtk.gdk.RIGHT_SIDE)
+    name = 'HorScale'
+
+    def begin(self, x, y,button):
+        Tool.begin(self, x, y,button)
 
     def move(self, x, y):
         self.canvas.set_size(int(x), self.canvas.get_height())
@@ -105,6 +124,10 @@ class HorizontalScalingTool(Tool):
 # ==============================================================================
 class VerticalScalingTool(Tool):
     CURSOR = gtk.gdk.Cursor(gtk.gdk.BOTTOM_SIDE)
+    name = 'VertScale'
+
+    def begin(self, x, y,button):
+        Tool.begin(self, x, y,button)
 
     def move(self, x, y):
         self.canvas.set_size(self.canvas.get_width(), int(y))

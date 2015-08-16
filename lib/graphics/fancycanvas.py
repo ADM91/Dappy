@@ -98,6 +98,9 @@ class FancyCanvas(Canvas):
                     self.active_tool = self.CANVAS_B_SCALER
                 else:
                     self.active_tool = self.DUMMY_TOOL
+            if self.active_tool.name != 'NotSet':
+                super(FancyCanvas, self).button_pressed(widget, event)
+            
         else:
             super(FancyCanvas, self).button_pressed(widget, event)
 

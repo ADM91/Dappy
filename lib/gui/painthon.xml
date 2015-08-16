@@ -155,7 +155,6 @@
                       <object class="GtkImageMenuItem" id="menu-delete">
                         <property name="label">gtk-delete</property>
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
@@ -229,7 +228,6 @@
             <child>
               <object class="GtkToolButton" id="undo-button">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="stock_id">gtk-undo</property>
@@ -243,7 +241,6 @@
             <child>
               <object class="GtkToolButton" id="redo-button">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="stock_id">gtk-redo</property>
@@ -266,7 +263,6 @@
             <child>
               <object class="GtkToolButton" id="cut-button">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="stock_id">gtk-cut</property>
@@ -280,7 +276,6 @@
             <child>
               <object class="GtkToolButton" id="copy-button">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="stock_id">gtk-copy</property>
@@ -294,7 +289,6 @@
             <child>
               <object class="GtkToolButton" id="paste-button">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="stock_id">gtk-paste</property>

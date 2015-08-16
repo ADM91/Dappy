@@ -2,9 +2,17 @@ import cairo
 import gtk
 import math
 import gobject
+import struct
 
 from lib.tools.generic import *
 from rgbacolor import RGBAColor
+from ctypes import create_string_buffer
+
+class undoBuffer:
+    ready = 0    
+    Buffer = None
+    width = 0
+    height = 0
 
 class Canvas(gtk.DrawingArea):
     TRANSPARENT_IMAGE = 0
@@ -15,6 +23,8 @@ class Canvas(gtk.DrawingArea):
     printing_tool = False
     image_type = 0
     picker_col = None
+    
+    UNDO_BUFFER = undoBuffer()
     
 
 
@@ -73,6 +83,7 @@ class Canvas(gtk.DrawingArea):
 
 
     def button_pressed(self, widget, event):
+        print 'hi'
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.active_tool.begin(event.x, event.y,event.button)
             
@@ -86,11 +97,13 @@ class Canvas(gtk.DrawingArea):
             col = self.active_tool.col
             self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
             self.emit("color_pick_event", event)
+        
 
     def move_event(self, widget, event):
         #context = widget.window.cairo_create()
         self.active_tool.move(event.x, event.y)
         self.swap_buffers()
+        
 
 
     def motion_event(self, widget, event):
@@ -106,6 +119,7 @@ class Canvas(gtk.DrawingArea):
         self.draw(context)
         self.CANVAS = aux
         self.printing_tool = False
+        
 
 
     def draw(self, context):
@@ -143,6 +157,7 @@ class Canvas(gtk.DrawingArea):
     def swap_buffers(self):
         rect = gtk.gdk.Rectangle(0, 0, self.width, self.height)
         self.window.invalidate_rect(rect, True)
+        
 
 
     def get_image(self):
@@ -159,5 +174,21 @@ class Canvas(gtk.DrawingArea):
         
     def get_color(self):
         return self.picker_col
+        
+    def undo(self):
+        data = self.CANVAS.get_data()
+        w = self.CANVAS.get_width()
+        h = self.CANVAS.get_height()
+
+        if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
+            self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
+            self.print_tool()
+            data = self.CANVAS.get_data()
+        data[:] = self.UNDO_BUFFER.Buffer[:]
+        self.swap_buffers()
+        
+
+
+        
 
 gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
