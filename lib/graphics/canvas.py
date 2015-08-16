@@ -83,7 +83,6 @@ class Canvas(gtk.DrawingArea):
 
 
     def button_pressed(self, widget, event):
-        print 'hi'
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.active_tool.begin(event.x, event.y,event.button)
             
@@ -102,7 +101,12 @@ class Canvas(gtk.DrawingArea):
     def move_event(self, widget, event):
         #context = widget.window.cairo_create()
         self.active_tool.move(event.x, event.y)
-        self.swap_buffers()
+        if self.active_tool.name == "ColorPicker" and  self.active_tool.mode == self.active_tool.DRAWING:
+            col = self.active_tool.col
+            self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
+            self.emit("color_pick_event", event)
+        else:
+            self.swap_buffers()
         
 
 

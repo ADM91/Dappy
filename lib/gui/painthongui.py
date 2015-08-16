@@ -132,11 +132,15 @@ class GUI():
             self.PAINTHON.set_secondary_color(c)
         else:
             c = widget.get_color()
-            if event.button == 1:
+            if event.type==gtk.gdk.MOTION_NOTIFY:
+                button = widget.active_tool.m_button
+            else:
+                button = event.button
+            if button == 1:
                 c.set_alpha(self.PAINTHON.get_primary_color().get_alpha())
                 self.PAINTHON.set_primary_color(c)
                 self.primary.set_color(c)
-            elif event.button == 3:
+            elif button == 3:
                 c.set_alpha(self.PAINTHON.get_secondary_color().get_alpha())
                 self.PAINTHON.set_secondary_color(c)
                 self.secondary.set_color(c)
