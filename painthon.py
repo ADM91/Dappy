@@ -151,12 +151,11 @@ class Painthon():
 
 
     def paste(self):
-        self.update_undo_buffer()
         print "paste"
 
 
     def redo(self):
-        print "redo"
+        self.canvas.redo()
 
 
     def undo(self):
@@ -174,6 +173,7 @@ class Painthon():
         return self.canvas
 
     def update_undo_buffer(self):
+        self.canvas.update_undo_buffer()
         return False
 
 

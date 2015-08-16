@@ -6,15 +6,23 @@ import gobject
 from lib.tools.generic import *
 from rgbacolor import RGBAColor
 
-class undoBuffer:
-    ready = 0    
+class undoBuffer: 
     n_buf = 5
+    cur_buf = 0
+    n_buf_full = 0
+    redos_allowed = 0
     Buffer = None
     width = 0
     height = 0
     
     def __init__(self):
         self.Buffer = [None for i in range(self.n_buf+1)]
+        
+    def next_buf(self):
+        return (self.cur_buf+1)%(self.n_buf+1)
+        
+    def prev_buf(self):
+        return (self.cur_buf-1)%(self.n_buf+1)
 
 class Canvas(gtk.DrawingArea):
     TRANSPARENT_IMAGE = 0
@@ -182,16 +190,53 @@ class Canvas(gtk.DrawingArea):
         return self.picker_col
         
     def undo(self):
-        data = self.surface.get_data()
+    
+        if self.UNDO_BUFFER.n_buf_full>0:
+            self.update_undo_buffer(0)
+            data = self.surface.get_data()
+            w = self.surface.get_width()
+            h = self.surface.get_height()
+            if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
+                self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
+                self.print_tool()
+                data = self.surface.get_data()
+            data[:] = self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.prev_buf()][:]
+            self.UNDO_BUFFER.n_buf_full -=1
+            if self.UNDO_BUFFER.redos_allowed<self.UNDO_BUFFER.n_buf:
+                self.UNDO_BUFFER.redos_allowed += 1
+            self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.prev_buf()
+            self.swap_buffers()
+            
+    
+    def redo(self):
+        if self.UNDO_BUFFER.redos_allowed>0:
+            data = self.surface.get_data()
+            w = self.surface.get_width()
+            h = self.surface.get_height()
+            if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
+                self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
+                self.print_tool()
+                data = self.surface.get_data()
+            data[:] = self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.next_buf()][:]
+            self.UNDO_BUFFER.redos_allowed -=1
+            self.UNDO_BUFFER.n_buf_full +=1
+            self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
+            self.swap_buffers()
+        
+    def update_undo_buffer(self,iterate):
         w = self.surface.get_width()
         h = self.surface.get_height()
-
-        if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
-            self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
-            self.print_tool()
-            data = self.surface.get_data()
-        data[:] = self.UNDO_BUFFER.Buffer[0][:]
-        self.swap_buffers()
+        s = self.surface.get_stride()
+        data = self.surface.get_data()
+        self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.cur_buf] = create_string_buffer(s*h)
+        self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.cur_buf][:] = data[:]    
+        self.UNDO_BUFFER.width = w
+        self.UNDO_BUFFER.height = h
+        if iterate==1:
+            self.UNDO_BUFFER.redos_allowed = 0
+            if self.UNDO_BUFFER.n_buf_full<self.UNDO_BUFFER.n_buf:
+                self.UNDO_BUFFER.n_buf_full += 1
+            self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
         
 
 
