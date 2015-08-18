@@ -39,7 +39,6 @@ class Painthon():
         self.canvas = FancyCanvas()
         self.canvas.set_image_type(FancyCanvas.OPAQUE_IMAGE)
         
-        self.UNDO_BUFFER = FancyCanvas()
 
         # Initialize readers/writers
         self.READWRITE = ImageFile()

@@ -20,20 +20,21 @@ _ = gettext.gettext
 
 class GUI():
     PAINTHON = None
+    builder = None
 
     def __init__(self, painthon):
         self.PAINTHON = painthon
         
-        #self.PAINTHON.picker.connect("color-changed-event", self.color_changed)
         self.PAINTHON.canvas.connect("color_pick_event", self.color_changed)
-        builder = gtk.Builder()
-        builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "painthon.xml"))
+        self.PAINTHON.canvas.connect("change_sensitivty", self.set_sensitivity)
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "painthon.xml"))
 
         # Get the window properly
-        self.window = builder.get_object("main-window")
+        self.window = self.builder.get_object("main-window")
 
         # Initialize canvas
-        viewport = builder.get_object("viewport-for-canvas")
+        viewport = self.builder.get_object("viewport-for-canvas")
         viewport.add(self.PAINTHON.get_canvas())
 
         # Set the first tool to use...
@@ -41,36 +42,36 @@ class GUI():
         #current_tool = "btn-tool-free-select"
         current_tool = "btn-tool-draw-rectangle"
         self.active_tool_button = None
-        builder.get_object(current_tool).set_active(True)
-        self.change_tool_gui(builder.get_object(current_tool))
+        self.builder.get_object(current_tool).set_active(True)
+        self.change_tool_gui(self.builder.get_object(current_tool))
 
         # Get the toolbar and set it not to show text
-        self.toolbar = builder.get_object("toolbar")
+        self.toolbar = self.builder.get_object("toolbar")
         self.toolbar.set_style(gtk.TOOLBAR_ICONS)
 
         # Initialize palette
-        self.__init_colors(builder.get_object("colors-grid"))
+        self.__init_colors(self.builder.get_object("colors-grid"))
 
         # Initialize working colors
         self.primary = ColorCell(0, 0, 0)
         self.primary.connect("color-changed-event", self.color_changed)
-        primary_frame = builder.get_object("primary-color")
+        primary_frame = self.builder.get_object("primary-color")
         primary_frame.add(self.primary)
         self.secondary = ColorCell(1, 1, 1)
         self.secondary.connect("color-changed-event", self.color_changed)
-        secondary_frame = builder.get_object("secondary-color")
+        secondary_frame = self.builder.get_object("secondary-color")
         secondary_frame.add(self.secondary)
 
         # Fix alpha sliders
-        a1 = builder.get_object("primary-color-alpha")
+        a1 = self.builder.get_object("primary-color-alpha")
         a1.set_value(a1.get_value())
         self.MAX_ALPHA_1 = a1.get_value()
-        a2 = builder.get_object("secondary-color-alpha")
+        a2 = self.builder.get_object("secondary-color-alpha")
         a2.set_value(a2.get_value())
         self.MAX_ALPHA_2 = a2.get_value()
 
         # Connecting signals properly...
-        builder.connect_signals(self)
+        self.builder.connect_signals(self)
 
         # Show the window
         self.window.show_all()
@@ -170,8 +171,22 @@ class GUI():
         c.set_alpha(value)
         self.PAINTHON.set_secondary_color(c)
         self.secondary.set_color(c)
-
-
+        
+    def set_sensitivity(self,widget,event):
+        if event.action == "undo":
+            ub = self.builder.get_object("undo-button")
+            ub.set_sensitive(event.sensitive)
+            um = self.builder.get_object("menu-undo")
+            um.set_sensitive(event.sensitive)
+        elif event.action == "redo":
+            rb = self.builder.get_object("redo-button")
+            rb.set_sensitive(event.sensitive)
+            rm = self.builder.get_object("menu-redo")
+            rm.set_sensitive(event.sensitive)
+        else:
+            print('Button %s unknown')%event.action
+            
+        
     def new(self, widget):
         self.PAINTHON.new()
 

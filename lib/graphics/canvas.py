@@ -12,17 +12,25 @@ class undoBuffer:
     n_buf_full = 0
     redos_allowed = 0
     Buffer = None
-    width = 0
-    height = 0
+    width = None
+    height = None
     
     def __init__(self):
         self.Buffer = [None for i in range(self.n_buf+1)]
+        self.width = [0 for i in range(self.n_buf+1)]
+        self.height = [0 for i in range(self.n_buf+1)]
         
     def next_buf(self):
         return (self.cur_buf+1)%(self.n_buf+1)
         
     def prev_buf(self):
         return (self.cur_buf-1)%(self.n_buf+1)
+        
+class senstivity_data:
+    
+    def __init__(self,action,sensitive):
+        self.action = action
+        self.sensitive = sensitive
 
 class Canvas(gtk.DrawingArea):
     TRANSPARENT_IMAGE = 0
@@ -193,53 +201,67 @@ class Canvas(gtk.DrawingArea):
     
         if self.UNDO_BUFFER.n_buf_full>0:
             self.update_undo_buffer(0)
+            buf = self.UNDO_BUFFER.prev_buf()
             data = self.surface.get_data()
             w = self.surface.get_width()
             h = self.surface.get_height()
-            if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
-                self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
+            bw = self.UNDO_BUFFER.width[buf]
+            bh = self.UNDO_BUFFER.height[buf]
+            if bh!=h | bw!=w:
+                self.set_size(bw,bh)
                 self.print_tool()
                 data = self.surface.get_data()
-            data[:] = self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.prev_buf()][:]
+            data[:] = self.UNDO_BUFFER.Buffer[buf][:]
             self.UNDO_BUFFER.n_buf_full -=1
             if self.UNDO_BUFFER.redos_allowed<self.UNDO_BUFFER.n_buf:
                 self.UNDO_BUFFER.redos_allowed += 1
-            self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.prev_buf()
+            self.UNDO_BUFFER.cur_buf = buf
             self.swap_buffers()
+            self.emit("change_sensitivty", senstivity_data('redo',True))
+            if self.UNDO_BUFFER.n_buf_full==0:
+                self.emit("change_sensitivty", senstivity_data('undo',False))
             
     
     def redo(self):
         if self.UNDO_BUFFER.redos_allowed>0:
+            buf = self.UNDO_BUFFER.next_buf()
             data = self.surface.get_data()
             w = self.surface.get_width()
             h = self.surface.get_height()
-            if self.UNDO_BUFFER.height!=h | self.UNDO_BUFFER.width!=w:
-                self.set_size(self.UNDO_BUFFER.width,self.UNDO_BUFFER.height)
+            bw = self.UNDO_BUFFER.width[buf]
+            bh = self.UNDO_BUFFER.height[buf]
+            if bh!=h | bw!=w:
+                self.set_size(bw,bh)
                 self.print_tool()
                 data = self.surface.get_data()
-            data[:] = self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.next_buf()][:]
+            data[:] = self.UNDO_BUFFER.Buffer[buf][:]
             self.UNDO_BUFFER.redos_allowed -=1
             self.UNDO_BUFFER.n_buf_full +=1
-            self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
+            self.UNDO_BUFFER.cur_buf = buf
             self.swap_buffers()
+            self.emit("change_sensitivty", senstivity_data('undo',True))
+            if self.UNDO_BUFFER.redos_allowed==0:
+                self.emit("change_sensitivty", senstivity_data('redo',False))
+                
         
     def update_undo_buffer(self,iterate):
         w = self.surface.get_width()
         h = self.surface.get_height()
         s = self.surface.get_stride()
         data = self.surface.get_data()
-        self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.cur_buf] = create_string_buffer(s*h)
-        self.UNDO_BUFFER.Buffer[self.UNDO_BUFFER.cur_buf][:] = data[:]    
-        self.UNDO_BUFFER.width = w
-        self.UNDO_BUFFER.height = h
+        buf = self.UNDO_BUFFER.cur_buf
+        self.UNDO_BUFFER.Buffer[buf] = create_string_buffer(s*h)
+        self.UNDO_BUFFER.Buffer[buf][:] = data[:]    
+        self.UNDO_BUFFER.width[buf] = w
+        self.UNDO_BUFFER.height[buf] = h
         if iterate==1:
+            self.emit("change_sensitivty", senstivity_data('undo',True))
+            self.emit("change_sensitivty", senstivity_data('redo',False))
             self.UNDO_BUFFER.redos_allowed = 0
             if self.UNDO_BUFFER.n_buf_full<self.UNDO_BUFFER.n_buf:
                 self.UNDO_BUFFER.n_buf_full += 1
             self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
         
 
-
-        
-
 gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
+gobject.signal_new("change_sensitivty", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
