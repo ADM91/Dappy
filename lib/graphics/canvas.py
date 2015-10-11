@@ -262,6 +262,8 @@ class Canvas(gtk.DrawingArea):
                 self.UNDO_BUFFER.n_buf_full += 1
             self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
         
+#    def paste(self):
+        
 
 gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
 gobject.signal_new("change_sensitivty", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))

@@ -19,23 +19,23 @@ from lib.io.generic import ImageFile
 _ = gettext.gettext
 
 class GUI():
-    PAINTHON = None
+    DAPPY = None
     builder = None
 
-    def __init__(self, painthon):
-        self.PAINTHON = painthon
+    def __init__(self, dappy):
+        self.DAPPY = dappy
         
-        self.PAINTHON.canvas.connect("color_pick_event", self.color_changed)
-        self.PAINTHON.canvas.connect("change_sensitivty", self.set_sensitivity)
+        self.DAPPY.canvas.connect("color_pick_event", self.color_changed)
+        self.DAPPY.canvas.connect("change_sensitivty", self.set_sensitivity)
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "painthon.xml"))
+        self.builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "dappy.xml"))
 
         # Get the window properly
         self.window = self.builder.get_object("main-window")
 
         # Initialize canvas
         viewport = self.builder.get_object("viewport-for-canvas")
-        viewport.add(self.PAINTHON.get_canvas())
+        viewport.add(self.DAPPY.get_canvas())
 
         # Set the first tool to use...
         # TODO: select the proper default tool
@@ -119,18 +119,18 @@ class GUI():
 
 
     def quit(self, window):
-        self.PAINTHON.quit(self.window)
+        self.DAPPY.quit(self.window)
 
 
     def color_changed(self, widget, event):
         if widget==self.primary:
             self.primary.modify_color(widget)
             c = widget.get_color()
-            self.PAINTHON.set_primary_color(c)
+            self.DAPPY.set_primary_color(c)
         elif widget==self.secondary:
             self.secondary.modify_color(widget)
             c = widget.get_color()
-            self.PAINTHON.set_secondary_color(c)
+            self.DAPPY.set_secondary_color(c)
         else:
             c = widget.get_color()
             if event.type==gtk.gdk.MOTION_NOTIFY:
@@ -138,12 +138,12 @@ class GUI():
             else:
                 button = event.button
             if button == 1:
-                c.set_alpha(self.PAINTHON.get_primary_color().get_alpha())
-                self.PAINTHON.set_primary_color(c)
+                c.set_alpha(self.DAPPY.get_primary_color().get_alpha())
+                self.DAPPY.set_primary_color(c)
                 self.primary.set_color(c)
             elif button == 3:
-                c.set_alpha(self.PAINTHON.get_secondary_color().get_alpha())
-                self.PAINTHON.set_secondary_color(c)
+                c.set_alpha(self.DAPPY.get_secondary_color().get_alpha())
+                self.DAPPY.set_secondary_color(c)
                 self.secondary.set_color(c)
 
 
@@ -154,22 +154,22 @@ class GUI():
                 self.active_tool_button = newtool
                 if prevtool != None:
                     prevtool.set_active(False)
-                self.PAINTHON.change_tool(gtk.Buildable.get_name(newtool).replace("btn-tool-", ""))
+                self.DAPPY.change_tool(gtk.Buildable.get_name(newtool).replace("btn-tool-", ""))
 
 
     def change_primary_alpha(self, slider):
-        c = self.PAINTHON.get_primary_color()
+        c = self.DAPPY.get_primary_color()
         value = slider.get_value()/self.MAX_ALPHA_1
         c.set_alpha(value)
-        self.PAINTHON.set_primary_color(c)
+        self.DAPPY.set_primary_color(c)
         self.primary.set_color(c)
 
 
     def change_secondary_alpha(self, slider):
-        c = self.PAINTHON.get_secondary_color()
+        c = self.DAPPY.get_secondary_color()
         value = slider.get_value()/self.MAX_ALPHA_2
         c.set_alpha(value)
-        self.PAINTHON.set_secondary_color(c)
+        self.DAPPY.set_secondary_color(c)
         self.secondary.set_color(c)
         
     def set_sensitivity(self,widget,event):
@@ -188,39 +188,39 @@ class GUI():
             
         
     def new(self, widget):
-        self.PAINTHON.new()
+        self.DAPPY.new()
 
 
     def open(self, widget):
-        self.PAINTHON.open()
+        self.DAPPY.open()
 
 
     def save(self, widget):
-        self.PAINTHON.save()
+        self.DAPPY.save()
 
 
     def save_as(self, widget):
-        self.PAINTHON.save_as()
+        self.DAPPY.save_as()
 
 
     def cut(self, widget):
-        self.PAINTHON.cut()
+        self.DAPPY.cut()
 
 
     def copy(self, widget):
-        self.PAINTHON.copy()
+        self.DAPPY.copy()
 
 
     def paste(self, widget):
-        self.PAINTHON.paste()
+        self.DAPPY.paste()
 
 
     def redo(self, widget):
-        self.PAINTHON.redo()
+        self.DAPPY.redo()
 
 
     def undo(self, widget):
-        self.PAINTHON.undo()
+        self.DAPPY.undo()
         
     def delete(self, widget):
-        self.PAINTHON.delete()
+        self.DAPPY.delete()

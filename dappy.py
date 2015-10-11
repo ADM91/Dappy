@@ -8,7 +8,7 @@ import os
 import sys
 import copy
 
-from lib.gui.painthongui import GUI
+from lib.gui.dappygui import GUI
 from lib.graphics.fancycanvas import FancyCanvas
 from lib.io.generic import ImageFile
 from lib.tools.figures import *
@@ -19,7 +19,7 @@ from lib.tools.spots import *
 
 _ = gettext.gettext
 
-class Painthon():
+class Dappy():
     canvas = None
     READWRITE = None
     
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     default_path = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    app = Painthon(default_path, filename)
+    app = Dappy(default_path, filename)
     gui = GUI(app)
 
     gtk.main()
