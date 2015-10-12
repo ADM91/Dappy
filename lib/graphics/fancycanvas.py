@@ -53,7 +53,6 @@ class FancyCanvas(Canvas):
 
     def expose(self, widget, event):
         super(FancyCanvas, self).expose(widget, event)
-
         # Retrieving cairo context
         context = widget.window.cairo_create()
 

@@ -39,9 +39,9 @@ class Canvas(gtk.DrawingArea):
     DEFAULT_CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
     active_tool = None
     printing_tool = False
-    image_type = 0
     picker_col = None
-    
+    bg_init=None
+    bg_col = None
     UNDO_BUFFER = undoBuffer()
     
 
@@ -61,6 +61,9 @@ class Canvas(gtk.DrawingArea):
         self.set_size(550, 412)
         self.ALPHA_PATTERN = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("pixmaps/alpha-pattern.png"))
         self.ALPHA_PATTERN.set_extend(cairo.EXTEND_REPEAT)
+        
+        self.bg_init=0
+        self.bg_col = (1, 1, 1, 1);
 
         # Basic tools
         self.DUMMY_TOOL = Tool(self)
@@ -68,19 +71,15 @@ class Canvas(gtk.DrawingArea):
 
         # Surface is the space in the canvas
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
-        
 
-    def reset(self, context):
-        # Clipping to draw area
-        context.rectangle(0, 0, self.width, self.height)
-        context.clip()
+        #clipboard        
+        self.clipboard = gtk.clipboard_get(selection="CLIPBOARD")
 
 
     def set_size(self, width, height):
         self.width = max(width, 1)
         self.height = max(height, 1)
         self.set_size_request(self.width, self.height)
-
 
     def get_width(self):
         return self.width
@@ -92,12 +91,6 @@ class Canvas(gtk.DrawingArea):
 
     def set_active_tool(self, tool):
         self.active_tool = tool
-
-
-    def expose(self, widget, event):
-        context = widget.window.cairo_create()
-
-        self.draw(context)
 
 
     def button_pressed(self, widget, event):
@@ -126,59 +119,68 @@ class Canvas(gtk.DrawingArea):
         else:
             self.swap_buffers()
         
-
-
     def motion_event(self, widget, event):
         self.active_tool.select()
         if event.x > self.width or event.y > self.height:
             self.window.set_cursor(self.DEFAULT_CURSOR)
 
 
-    def print_tool(self):
-        aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
-        context = cairo.Context(aux)
-        self.printing_tool = True
-        self.draw(context)
-        self.surface = aux
-        self.printing_tool = False
-        
-
-
-    def draw(self, context):
-        # Clipping area
-        self.reset(context)
-
-        # Drawing the background
-        if not self.printing_tool:
-            self.__draw_background(context)
-
-        if self.image_type == self.OPAQUE_IMAGE and self.printing_tool:
-            self.__draw_background(context)
-
-        # Draw the result
-        self.reset(context)
-
-        source = context.get_source()
-        context.set_source_surface(self.surface)
-        context.paint()
-        context.set_source(source)
-
-        self.active_tool.draw(context)
-
-
-    def __draw_background(self, context):
-        context.rectangle(0, 0, self.width, self.height)
-        if self.image_type == self.TRANSPARENT_IMAGE:
-            context.set_source(self.ALPHA_PATTERN)
-            context.paint()
-        else:
-            context.set_source_rgb(1, 1, 1)
-            context.fill()
-
-
     def swap_buffers(self):
         rect = gtk.gdk.Rectangle(0, 0, self.width, self.height)
-        self.window.invalidate_rect(rect, True)
+        self.window.invalidate_rect(rect, True) #invalidating the rectangle forces gtk to run expose.
+
+    def expose(self, widget, event): # Run when buffers are swapped: updates screen.
+        #get widget window as context
+        context = widget.window.cairo_create()
+        #clip to image size
+        context.rectangle(0, 0, self.width, self.height)
+        context.clip()
+        #draw in clipped region
+        self.draw(context)
+
+    def print_tool(self):
+        #when printing context is size of canvas
+        aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        context = cairo.Context(aux)
+        #Set print marker to true and draw to aux
+        self.printing_tool = True
+        self.draw(context)
+        self.surface = aux #surface now swapped with updated surface
+        self.printing_tool = False
+
+    def draw(self, context):
+        # Drawing the background
+        if not self.printing_tool:
+            self.__draw_background(context,0)
+        else:
+            self.__draw_background(context,1)
+        #Draw the current surface over the background
+        context.set_source_surface(self.surface)
+        context.paint()
+        #Draw any active tool if applicable.
+        self.active_tool.draw(context)
+
+    def __draw_background(self, context,printing):
+        if printing==0: #writing to screen, not printing to surface object
+            #paint alpha pattern over whole clipped region
+            context.set_source(self.ALPHA_PATTERN)
+            context.paint()
+            #any new area from a change in size is set to background colour
+            context.rectangle(self.surface.get_width(), 0, self.width-self.surface.get_width(), self.height)
+            context.rectangle(0, self.surface.get_height(), self.width, self.height-self.surface.get_height())
+            context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+            context.fill()
+        else:
+            #if the background has never been initialsed (first print) then
+            #fill whole canvas, else fill new regions
+            if self.bg_init==0:
+                context.rectangle(0, 0, self.width, self.height)
+                self.bg_init=1
+            else:
+                context.rectangle(self.surface.get_width(), 0, self.width-self.surface.get_width(), self.height)
+                context.rectangle(0, self.surface.get_height(), self.width, self.height-self.surface.get_height())
+            context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+            context.fill()
         
 
 
@@ -190,15 +192,11 @@ class Canvas(gtk.DrawingArea):
         self.surface = surface
         self.set_size(surface.get_width(), surface.get_height())
 
-
-    def set_image_type(self, image_type):
-        self.image_type = image_type
         
     def get_color(self):
         return self.picker_col
         
-    def undo(self):
-    
+    def undo(self):    
         if self.UNDO_BUFFER.n_buf_full>0:
             self.update_undo_buffer(0)
             buf = self.UNDO_BUFFER.prev_buf()
@@ -262,8 +260,29 @@ class Canvas(gtk.DrawingArea):
                 self.UNDO_BUFFER.n_buf_full += 1
             self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
         
-#    def paste(self):
-        
+    def paste(self):
+        image = self.clipboard.wait_for_image();
+        if image != None:
+            self.set_size(max(self.width,image.get_width()), max(self.height,image.get_height()))
+            self.print_tool()
+            aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, image.get_width(), image.get_height())
+            im_data = image.get_pixels()
+            # the next two semingly useless lines give the surface real pixels to be edited.
+            context = cairo.Context(aux)
+            context.paint() 
+            #directly write to the pixels in aux
+            data = aux.get_data()
+            data[2::4] = im_data[0::4]#red
+            data[0::4] = im_data[2::4] #blue
+            data[1::4] = im_data[1::4] #green
+            data[3::4] = im_data[3::4] #green
+            #use cairo to add the pasted image to the current image
+            context = cairo.Context(self.surface)
+            context.set_source_surface(aux, 0, 0)
+            context.paint()
+
+
 
 gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
+# change whether GUI icons are enabled
 gobject.signal_new("change_sensitivty", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))

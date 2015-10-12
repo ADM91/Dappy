@@ -6,7 +6,6 @@ import gtk
 import gettext
 import os
 import sys
-import copy
 
 from lib.gui.dappygui import GUI
 from lib.graphics.fancycanvas import FancyCanvas
@@ -54,6 +53,7 @@ class Dappy():
         # Initialize colors
         self.primary = RGBAColor(0, 0, 0, 1)
         self.secondary = RGBAColor(1, 1, 1, 1)
+        self.canvas.bg_col = self.secondary.get_rgba()
 
         # Defining tools
         self.TOOLS = {"draw-rounded-rectangle" : RoundedRectangleTool(self.canvas),
@@ -94,6 +94,7 @@ class Dappy():
         self.secondary = c
         for tool in self.TOOLS.values():
             tool.set_secondary_color(c)
+        self.canvas.bg_col = self.secondary.get_rgba()
 
 
     def get_primary_color(self):
@@ -150,7 +151,7 @@ class Dappy():
 
 
     def paste(self):
-        print "paste"
+        self.canvas.paste()
 
 
     def redo(self):
