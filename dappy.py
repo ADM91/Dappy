@@ -36,7 +36,6 @@ class Dappy():
 
         # Initialize canvas
         self.canvas = FancyCanvas()
-        self.canvas.set_image_type(FancyCanvas.OPAQUE_IMAGE)
         
 
         # Initialize readers/writers
@@ -130,7 +129,6 @@ class Dappy():
 
         canonical_filename = image_info[0]
         self.canvas.set_image(image_info[1])
-        self.canvas.set_image_type(image_info[2])
         self.__fix_image_info(canonical_filename)
 
 

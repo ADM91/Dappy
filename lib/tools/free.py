@@ -62,6 +62,7 @@ class EraserTool(PencilTool):
             self.use_secondary_color(context)
         for point in self.points:
             context.line_to(point[0], point[1])
+        context.set_operator(cairo.OPERATOR_SOURCE)
         context.stroke()
 
         context.restore()

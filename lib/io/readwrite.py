@@ -33,8 +33,7 @@ class PNGReaderWriter(ReaderWriter):
 
     def read(self, canonical_filename):
         return (canonical_filename,
-           cairo.ImageSurface.create_from_png(canonical_filename),
-           Canvas.TRANSPARENT_IMAGE)
+           cairo.ImageSurface.create_from_png(canonical_filename))
 
 
     def write(self, image, canonical_filename):
@@ -55,8 +54,7 @@ class JPEGReaderWriter(ReaderWriter):
 
     def read(self, canonical_filename):
         return (canonical_filename,
-           cairo.ImageSurface.create_from_png(canonical_filename),
-           Canvas.OPAQUE_IMAGE)
+           cairo.ImageSurface.create_from_png(canonical_filename))
 
 
     def write(self, image, canonical_filename):

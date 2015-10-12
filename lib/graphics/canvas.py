@@ -33,8 +33,6 @@ class senstivity_data:
         self.sensitive = sensitive
 
 class Canvas(gtk.DrawingArea):
-    TRANSPARENT_IMAGE = 0
-    OPAQUE_IMAGE = 1
 
     DEFAULT_CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
     active_tool = None
@@ -130,57 +128,51 @@ class Canvas(gtk.DrawingArea):
         self.window.invalidate_rect(rect, True) #invalidating the rectangle forces gtk to run expose.
 
     def expose(self, widget, event): # Run when buffers are swapped: updates screen.
-        #get widget window as context
-        context = widget.window.cairo_create()
-        #clip to image size
-        context.rectangle(0, 0, self.width, self.height)
-        context.clip()
-        #draw in clipped region
+        #temporary surface size of canvas
+        tmp_surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        context = cairo.Context(tmp_surf)
+        #draw to this temporary surface
         self.draw(context)
+        #get widget window as context
+        wincontext = widget.window.cairo_create()
+        #clip to image size
+        wincontext.rectangle(0, 0, self.width, self.height)
+        wincontext.clip()
+        #paint alpha pattern over whole clipped region
+        wincontext.set_source(self.ALPHA_PATTERN)
+        wincontext.paint()
+        #paint 
+        wincontext.set_source_surface(tmp_surf)
+        wincontext.paint()
 
     def print_tool(self):
-        #when printing context is size of canvas
-        aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
-        context = cairo.Context(aux)
-        #Set print marker to true and draw to aux
-        self.printing_tool = True
+        #temporary surface size of canvas
+        tmp_surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        context = cairo.Context(tmp_surf)
+        #draw to temporary surface
         self.draw(context)
-        self.surface = aux #surface now swapped with updated surface
-        self.printing_tool = False
+        self.surface = tmp_surf #surface now swapped with updated surface
 
     def draw(self, context):
         # Drawing the background
-        if not self.printing_tool:
-            self.__draw_background(context,0)
-        else:
-            self.__draw_background(context,1)
+        self.__draw_background(context)
         #Draw the current surface over the background
         context.set_source_surface(self.surface)
         context.paint()
         #Draw any active tool if applicable.
         self.active_tool.draw(context)
 
-    def __draw_background(self, context,printing):
-        if printing==0: #writing to screen, not printing to surface object
-            #paint alpha pattern over whole clipped region
-            context.set_source(self.ALPHA_PATTERN)
-            context.paint()
-            #any new area from a change in size is set to background colour
+    def __draw_background(self, context):
+        #if the background has never been initialsed (first print) then
+        #fill whole canvas, else fill new regions
+        if self.bg_init==0:
+            context.rectangle(0, 0, self.width, self.height)
+            self.bg_init=1
+        else:
             context.rectangle(self.surface.get_width(), 0, self.width-self.surface.get_width(), self.height)
             context.rectangle(0, self.surface.get_height(), self.width, self.height-self.surface.get_height())
-            context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
-            context.fill()
-        else:
-            #if the background has never been initialsed (first print) then
-            #fill whole canvas, else fill new regions
-            if self.bg_init==0:
-                context.rectangle(0, 0, self.width, self.height)
-                self.bg_init=1
-            else:
-                context.rectangle(self.surface.get_width(), 0, self.width-self.surface.get_width(), self.height)
-                context.rectangle(0, self.surface.get_height(), self.width, self.height-self.surface.get_height())
-            context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
-            context.fill()
+        context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+        context.fill()
         
 
 
