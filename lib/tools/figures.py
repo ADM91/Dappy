@@ -59,3 +59,24 @@ class EllipseTool(DragAndDropTool):
             context.stroke()
         except cairo.Error:
             pass
+
+class RectangleSelectTool(DragAndDropTool):
+    name = 'RectSelect'
+    Draw2Overlay = True;
+    def draw(self,context):
+        if self.mode == self.READY:
+            return
+        context.set_operator(cairo.OPERATOR_SOURCE)
+        context.rectangle(0, 0, self.canvas.width, self.canvas.height)
+        context.set_source_rgba(0, 0, 0, 0)
+        context.fill()
+        context.set_operator(cairo.OPERATOR_OVER)
+        w = self.final_x - self.initial_x
+        h = self.final_y - self.initial_y
+        context.rectangle(self.initial_x, self.initial_y, w, h)
+        context.set_dash((1,1))
+        self.use_primary_color(context)
+        context.stroke()
+        
+    def commit(self):
+        self.mode = self.READY

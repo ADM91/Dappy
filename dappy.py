@@ -36,7 +36,6 @@ class Dappy():
 
         # Initialize canvas
         self.canvas = FancyCanvas()
-        
 
         # Initialize readers/writers
         self.READWRITE = ImageFile()
@@ -63,11 +62,12 @@ class Dappy():
                       "bucket-fill"     : BucketFillTool(self.canvas),
                       "eraser"          : EraserTool(self.canvas),
                       "draw-ellipse"    : EllipseTool(self.canvas), 
-                      "color-picker"    : ColorPickerTool(self.canvas)}
+                      "color-picker"    : ColorPickerTool(self.canvas),
+                      "rect-select"     : RectangleSelectTool(self.canvas)}
 
 
         
-
+        self.canvas.clear_overlay()
         self.canvas.print_tool()
 
 

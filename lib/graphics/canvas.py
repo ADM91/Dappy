@@ -36,7 +36,6 @@ class Canvas(gtk.DrawingArea):
 
     DEFAULT_CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
     active_tool = None
-    printing_tool = False
     picker_col = None
     bg_init=None
     bg_col = None
@@ -67,14 +66,16 @@ class Canvas(gtk.DrawingArea):
         self.DUMMY_TOOL = Tool(self)
         self.active_tool = self.DUMMY_TOOL
 
-        # Surface is the space in the canvas
+        # Surface is the image in the canvas
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        #overlay is for selection boxes - etc
+        self.overlay = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
 
         #clipboard        
         self.clipboard = gtk.clipboard_get(selection="CLIPBOARD")
 
 
-    def set_size(self, width, height):
+    def set_size(self, width, height): #Not called by fancycanvas!!
         self.width = max(width, 1)
         self.height = max(height, 1)
         self.set_size_request(self.width, self.height)
@@ -144,8 +145,12 @@ class Canvas(gtk.DrawingArea):
         #paint 
         wincontext.set_source_surface(tmp_surf)
         wincontext.paint()
+        #overlay 
+        wincontext.set_source_surface(self.overlay)
+        wincontext.paint()
 
     def print_tool(self):
+        self.clear_overlay()
         #temporary surface size of canvas
         tmp_surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
         context = cairo.Context(tmp_surf)
@@ -160,7 +165,11 @@ class Canvas(gtk.DrawingArea):
         context.set_source_surface(self.surface)
         context.paint()
         #Draw any active tool if applicable.
-        self.active_tool.draw(context)
+        if self.active_tool.Draw2Overlay:
+            ov_context = cairo.Context(self.overlay)
+            self.active_tool.draw(ov_context)
+        else:
+            self.active_tool.draw(context)
 
     def __draw_background(self, context):
         #if the background has never been initialsed (first print) then
@@ -174,7 +183,16 @@ class Canvas(gtk.DrawingArea):
         context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
         context.fill()
         
-
+    def clear_overlay(self):
+        #temporary surface size of canvase
+        tmp_surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
+        context= cairo.Context(tmp_surf)
+        #paint surface transparent
+        context.rectangle(0, 0, self.width, self.height)
+        context.set_source_rgba(0, 0, 0, 0)
+        context.fill()
+        #set as overlay
+        self.overlay = tmp_surf
 
     def get_image(self):
         return self.surface
