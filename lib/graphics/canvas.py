@@ -289,6 +289,19 @@ class Canvas(gtk.DrawingArea):
                 self.UNDO_BUFFER.n_buf_full += 1
             self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
         
+    def copy(self):
+        data = self.surface.get_data()
+        t_data=list(data)
+        t_data[::4] = data[2::4]
+        t_data[2::4] = data[::4]
+        t_data = ''.join(t_data)
+        s = self.surface.get_stride()
+        w = self.surface.get_width()
+        h = self.surface.get_height()
+        PixBuf =  gtk.gdk.pixbuf_new_from_data(t_data,gtk.gdk.COLORSPACE_RGB, True, 8, w,h,s)
+        
+        self.clipboard.set_image(PixBuf)
+    
     def paste(self):
         image = self.clipboard.wait_for_image();
         if image != None:
@@ -301,14 +314,21 @@ class Canvas(gtk.DrawingArea):
             context.paint() 
             #directly write to the pixels in aux
             data = aux.get_data()
-            data[2::4] = im_data[0::4]#red
-            data[0::4] = im_data[2::4] #blue
-            data[1::4] = im_data[1::4] #green
-            data[3::4] = im_data[3::4] #green
+            #pasted image has alpha channel
+            if image.get_rowstride()==aux.get_stride():
+                data[2::4] = im_data[0::4]#red
+                data[0::4] = im_data[2::4] #blue
+                data[1::4] = im_data[1::4] #green
+                data[3::4] = im_data[3::4] #alpha
+            else: #pasted data no alpha channel
+                data[2::4] = im_data[0::3]#red
+                data[0::4] = im_data[2::3] #blue
+                data[1::4] = im_data[1::3] #green
             #use cairo to add the pasted image to the current image
             context = cairo.Context(self.surface)
             context.set_source_surface(aux, 0, 0)
             context.paint()
+            self.swap_buffers()
 
 
 

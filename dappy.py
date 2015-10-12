@@ -165,7 +165,7 @@ class Dappy():
 
 
     def copy(self):
-        print "copy"
+        self.canvas.copy()
 
 
     def paste(self):
