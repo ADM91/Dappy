@@ -305,6 +305,7 @@ class Canvas(gtk.DrawingArea):
     def paste(self):
         image = self.clipboard.wait_for_image();
         if image != None:
+            self.update_undo_buffer(1)
             self.set_size(max(self.width,image.get_width()), max(self.height,image.get_height()))
             self.print_tool()
             aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, image.get_width(), image.get_height())
