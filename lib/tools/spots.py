@@ -51,8 +51,6 @@ class ColorPickerTool(DragAndDropTool):
         col_int = struct.unpack_from(str(self.bpp)+'B',col_bin)
         self.col = [float(i)/255 for i in col_int]
 
-
-
     def end(self, x, y):
         self.mode = self.READY
         
@@ -65,10 +63,6 @@ class ColorPickerTool(DragAndDropTool):
                 col_bin = self.data[act_px:act_px+4]
                 col_int = struct.unpack_from(str(self.bpp)+'B',col_bin)
                 self.col = [float(i)/255 for i in col_int]
-
-            
-
-
 
 class BucketFillTool(Tool):
     name = 'BucketFill';
@@ -93,7 +87,7 @@ class BucketFillTool(Tool):
         rep_c = create_string_buffer(bpp)
         struct.pack_into(str(bpp)+'B',rep_c,0,int(pc.get_blue()*255), int(pc.get_green()*255),
                          int(pc.get_red()*255), int(pc.get_alpha()*255))
-        
+                         
 
         if orr_c != rep_c[0:bpp]:
             pxstack = [-1] * (h*w*bpp)
@@ -118,7 +112,6 @@ class BucketFillTool(Tool):
                         pxstack[writec]=(act_px-bpp)
                         writec+=1
             
-
         
         self.mode = self.READY
     

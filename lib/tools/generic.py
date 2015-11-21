@@ -48,7 +48,6 @@ class Tool(gtk.Object):
         self.canvas.clear_overlay()
         self.canvas.update_undo_buffer(1)
         self.mode = self.DRAWING
-        print "yo"
 
     def end(self, x, y):
         self.mode = self.EDITING

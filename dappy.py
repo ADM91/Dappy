@@ -161,11 +161,11 @@ class Dappy():
 
 
     def cut(self):
-        print "cut"
+        self.canvas.copy(True)
 
 
     def copy(self):
-        self.canvas.copy()
+        self.canvas.copy(False)
 
 
     def paste(self):

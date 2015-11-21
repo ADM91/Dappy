@@ -107,8 +107,15 @@ class RectangleSelectTool(DragAndDropTool):
         h = self.final_y - self.initial_y
         context.rectangle(self.initial_x, self.initial_y, w, h)
         context.set_dash((5,5))
-        self.use_primary_color(context)
+        context.set_source_rgba(0,0,1,1)
+        context.stroke()
+        context.rectangle(self.initial_x, self.initial_y, w, h)
+        context.set_dash((5,5),5)
+        context.set_source_rgba(1,1,0,1)
         context.stroke()
         
     def commit(self):
         self.mode = self.READY
+        self.canvas.select_active = True
+        self.canvas.select_xp = [self.initial_x,self.initial_x,self.final_x,self.final_x]
+        self.canvas.select_yp = [self.initial_y,self.final_y,self.initial_y,self.final_y]
