@@ -25,16 +25,11 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 import gettext
-import math
-import cairo
 import os
-import sys
 
 from lib.misc.hsvgenerator import HSVGenerator
 from lib.graphics.colorcell import ColorCell
-from lib.graphics.fancycanvas import FancyCanvas
 from lib.graphics.rgbacolor import RGBAColor
-from lib.io.generic import ImageFile
 
 _ = gettext.gettext
 

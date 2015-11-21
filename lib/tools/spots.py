@@ -81,14 +81,13 @@ class BucketFillTool(Tool):
         if button==3:
             pc=self.secondary
         else:
-            pc = self.primary   
+            pc = self.primary
         act_px = int(y*s+x*bpp)      
         orr_c = data[act_px:act_px+bpp]
         rep_c = create_string_buffer(bpp)
-        struct.pack_into(str(bpp)+'B',rep_c,0,int(pc.get_blue()*255), int(pc.get_green()*255),
-                         int(pc.get_red()*255), int(pc.get_alpha()*255))
-                         
-
+        struct.pack_into(str(bpp)+'B',rep_c,0,int(pc.get_alpha()*pc.get_blue()*255), int(pc.get_alpha()*pc.get_green()*255),
+                         int(pc.get_alpha()*pc.get_red()*255), int(pc.get_alpha()*255))
+        
         if orr_c != rep_c[0:bpp]:
             pxstack = [-1] * (h*w*bpp)
             pxstack[0] = act_px
