@@ -29,6 +29,7 @@ _ = gettext.gettext
 class ReaderWriter:
     FILTER = None
     IMGTYPE = None
+    patterns = None
 
     def get_filter(self):
         return self.FILTER
@@ -46,9 +47,10 @@ class PNGReaderWriter(ReaderWriter):
         self.FILTER = gtk.FileFilter()
         self.FILTER.set_name("PNG - Portable Network Graphics")
         self.FILTER.add_mime_type("image/png")
-        self.FILTER.add_pattern("*.png")
-
         self.IMGTYPE = "png"
+        self.patterns = ('.png','.PNG',)
+        for pat in self.patterns:
+            self.FILTER.add_pattern("*"+pat)
 
 
     def read(self, canonical_filename):
@@ -66,10 +68,10 @@ class JPEGReaderWriter(ReaderWriter):
         self.FILTER = gtk.FileFilter()
         self.FILTER.set_name("JPG - Portable Network Graphics")
         self.FILTER.add_mime_type("image/jpeg")
-        self.FILTER.add_pattern("*.jpg")
-        self.FILTER.add_pattern("*.jpeg")
-
         self.IMGTYPE = "jpeg"
+        self.patterns = (".jpg",'.jpeg')
+        for pat in self.patterns:
+            self.FILTER.add_pattern("*"+pat)
 
 
     def read(self, canonical_filename):

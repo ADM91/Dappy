@@ -65,11 +65,12 @@ class ImageFile:
 
     def save(self, image, path, filename=None):
         if filename == None:
-            self.save_as(image, path)
+            canonical_filename = self.save_as(image, path)
         else:
             canonical_filename = path + os.sep + filename
-            self.__detect_tool(filename)
+            self.__detect_tool(canonical_filename)
             self.current_tool.write(image, canonical_filename)
+        return canonical_filename
 
 
     def save_as(self, image, path, filename=None):
@@ -80,11 +81,13 @@ class ImageFile:
               gtk.STOCK_SAVE,
               gtk.RESPONSE_OK)
            )
-
+        file_dialog.set_do_overwrite_confirmation(True)
         file_dialog.set_title(_("Save Image As"))
-        file_dialog.set_current_folder(path)
         if filename != None:
-            file_dialog.set_filename(filename)
+            canonical_filename = path + os.sep + filename
+            file_dialog.set_filename(canonical_filename)
+        else:
+            file_dialog.set_current_folder(path+"test")
 
         for tool in self.TOOLS_BY_FILTER.values():
             file_dialog.add_filter(tool.get_filter())
@@ -92,8 +95,19 @@ class ImageFile:
         response = file_dialog.run()
         if response == gtk.RESPONSE_OK:
             self.current_tool = self.TOOLS_BY_FILTER[file_dialog.get_filter()]
-            self.current_tool.write(image, file_dialog.get_filename())
+            filename = file_dialog.get_filename()
+            if not os.path.exists(filename):
+                pat_good = False
+                for pat in self.current_tool.patterns:
+                    if filename.endswith(pat):
+                        pat_good=True
+                if not pat_good:
+                    filename += self.current_tool.patterns[0]
+            self.current_tool.write(image, filename)
+        else:
+            filename = None
         file_dialog.destroy()
+        return filename
 
 
     def read(self, filename):

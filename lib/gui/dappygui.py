@@ -21,8 +21,6 @@
 
 
 # Import packages
-import pygtk
-pygtk.require("2.0")
 import gtk
 import gettext
 import os
@@ -227,7 +225,7 @@ class GUI():
         self.DAPPY.fix_image_info(canonical_filename)
 
     def save_as(self, widget):
-        canonical_filename = self.DAPPY.READWRITE.save(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
+        canonical_filename = self.DAPPY.READWRITE.save_as(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
         self.DAPPY.fix_image_info(canonical_filename)
 
     def cut(self, widget):
