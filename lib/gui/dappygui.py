@@ -51,7 +51,7 @@ class GUI():
 
         # Initialize canvas
         viewport = self.builder.get_object("viewport-for-canvas")
-        viewport.add(self.DAPPY.get_canvas())
+        viewport.add(self.DAPPY.canvas)
 
         # Set the first tool to use...
         current_tool = "btn-tool-paintbrush"
@@ -216,37 +216,38 @@ class GUI():
             
         
     def new(self, widget):
-        self.DAPPY.new()
-
+        print "new"
 
     def open(self, widget):
-        self.DAPPY.open()
-
+        info = self.DAPPY.READWRITE.open(self.DAPPY.path)
+        self.DAPPY.set_current_info(info)
 
     def save(self, widget):
-        self.DAPPY.save()
-
+        canonical_filename = self.DAPPY.READWRITE.save(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
+        self.DAPPY.fix_image_info(canonical_filename)
 
     def save_as(self, widget):
-        self.DAPPY.save_as()
+        canonical_filename = self.DAPPY.READWRITE.save(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
+        self.DAPPY.fix_image_info(canonical_filename)
 
     def cut(self, widget):
-        self.DAPPY.cut()
+        self.DAPPY.canvas.copy(True)
+
 
     def copy(self, widget):
-        self.DAPPY.copy()
+        self.DAPPY.canvas.copy(False)
 
 
     def paste(self, widget):
-        self.DAPPY.paste()
+        self.DAPPY.canvas.paste()
 
 
     def redo(self, widget):
-        self.DAPPY.redo()
+        self.DAPPY.canvas.redo()
 
 
     def undo(self, widget):
-        self.DAPPY.undo()
+        self.DAPPY.canvas.undo()
         
     def delete(self, widget):
-        self.DAPPY.delete()
+        print "delete"

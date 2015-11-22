@@ -63,7 +63,7 @@ class Dappy():
         # Load image information
         if image_filename != None:
             info = self.READWRITE.read(os.path.abspath(image_filename))
-            self.__set_current_info(info)
+            self.set_current_info(info)
         else:
             self.filename = None
             self.path = path
@@ -85,22 +85,8 @@ class Dappy():
                       "color-picker"    : ColorPickerTool(self.canvas),
                       "rect-select"     : RectangleSelectTool(self.canvas)}
 
-
-        
         self.canvas.clear_overlay()
         self.canvas.print_tool()
-
-
-#    def quit(self, main_window):
-#        if self.canvas.is_modified():
-#            warning = gtk.MessageDialog(main_window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "TODO")
-#            a = warning.run()
-#            warning.destroy()
-#            if a==-5:
-#                gtk.main_quit()
-#        else:
-#            gtk.main_quit()
-
 
     def change_tool(self, toolname):
         self.canvas.set_active_tool(self.TOOLS[toolname])
@@ -127,71 +113,21 @@ class Dappy():
         return self.secondary
 
 
-    def new(self):
-        print "new"
-
-
-    def open(self):
-        info = self.READWRITE.open(self.path)
-        self.__set_current_info(info)
-
-
-    def save(self):
-        canonical_filename = self.READWRITE.save(self.canvas.get_image(), self.path, self.filename)
-        self.__fix_image_info(canonical_filename)
-
-
-    def save_as(self):
-        canonical_filename = self.READWRITE.save_as(self.canvas.get_image(), self.path, self.filename)
-        self.__fix_image_info(canonical_filename)
-
-
-    def __set_current_info(self, image_info):
+    def set_current_info(self, image_info):
         if image_info == None:
             return
 
         canonical_filename = image_info[0]
         self.canvas.set_image(image_info[1])
-        self.__fix_image_info(canonical_filename)
+        self.fix_image_info(canonical_filename)
 
 
-    def __fix_image_info(self, canonical_filename):
+    def fix_image_info(self, canonical_filename):
         if canonical_filename == None:
             return
 
         self.filename = os.path.basename(canonical_filename)
         self.path = os.path.dirname(canonical_filename)
-
-
-    def cut(self):
-        self.canvas.copy(True)
-
-
-    def copy(self):
-        self.canvas.copy(False)
-
-
-    def paste(self):
-        self.canvas.paste()
-
-
-    def redo(self):
-        self.canvas.redo()
-
-
-    def undo(self):
-        self.canvas.undo()
-        
-    def delete(self):
-        print "delete"
-
-    def get_canvas(self):
-        return self.canvas
-
-    def update_undo_buffer(self):
-        self.canvas.update_undo_buffer()
-        return False
-
 
 
 if __name__ == "__main__":
