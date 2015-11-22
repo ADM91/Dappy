@@ -60,6 +60,7 @@ class Canvas(gtk.DrawingArea):
     bg_col = None
     UNDO_BUFFER = undoBuffer()
     select_active = None;
+    modified = None;
     
     
     
@@ -86,7 +87,9 @@ class Canvas(gtk.DrawingArea):
         
         self.select_active = False
         self.select_xp = None
-        self.select_yp = None        
+        self.select_yp = None
+        
+        self.modified = False
         
         # Basic tools
         self.DUMMY_TOOL = Tool(self)
@@ -133,9 +136,8 @@ class Canvas(gtk.DrawingArea):
             self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
             self.emit("color_pick_event", event)
         
-
+    #always runs when mouse moves
     def move_event(self, widget, event):
-        #context = widget.window.cairo_create()
         self.active_tool.move(event.x, event.y)
         if self.active_tool.name == "ColorPicker" and  self.active_tool.mode == self.active_tool.DRAWING:
             col = self.active_tool.col
@@ -143,7 +145,8 @@ class Canvas(gtk.DrawingArea):
             self.emit("color_pick_event", event)
         else:
             self.swap_buffers()
-        
+    
+    #captured by fancy canvas and only run if not over scaling point.
     def motion_event(self, widget, event):
         self.active_tool.select()
         if event.x > self.width or event.y > self.height:
@@ -235,6 +238,7 @@ class Canvas(gtk.DrawingArea):
         
     def undo(self):    
         if self.UNDO_BUFFER.n_buf_full>0:
+            self.modified=True
             self.update_undo_buffer(0)
             buf = self.UNDO_BUFFER.prev_buf()
             data = self.surface.get_data()
@@ -259,6 +263,7 @@ class Canvas(gtk.DrawingArea):
     
     def redo(self):
         if self.UNDO_BUFFER.redos_allowed>0:
+            self.modified=True
             buf = self.UNDO_BUFFER.next_buf()
             data = self.surface.get_data()
             w = self.surface.get_width()
@@ -280,6 +285,7 @@ class Canvas(gtk.DrawingArea):
                 
         
     def update_undo_buffer(self,iterate):
+        self.modified=True
         w = self.surface.get_width()
         h = self.surface.get_height()
         s = self.surface.get_stride()
@@ -393,8 +399,9 @@ class Canvas(gtk.DrawingArea):
             context.paint()
             self.swap_buffers()
 
-
-
+    def is_modified(self):
+        return self.modified
+        
 gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
 # change whether GUI icons are enabled
 gobject.signal_new("change_sensitivty", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))

@@ -91,12 +91,15 @@ class Dappy():
         self.canvas.print_tool()
 
 
-    def quit(self, main_window):
-        if self.is_modified():
-            warning = gtk.MessageDialog(main_window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, "TODO")
-            a = warning.run()
-            warning.destroy()
-        gtk.main_quit()
+#    def quit(self, main_window):
+#        if self.canvas.is_modified():
+#            warning = gtk.MessageDialog(main_window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "TODO")
+#            a = warning.run()
+#            warning.destroy()
+#            if a==-5:
+#                gtk.main_quit()
+#        else:
+#            gtk.main_quit()
 
 
     def change_tool(self, toolname):
@@ -181,11 +184,6 @@ class Dappy():
         
     def delete(self):
         print "delete"
-
-
-    def is_modified(self):
-        # TODO: return the proper result... ;-)
-        return False
 
     def get_canvas(self):
         return self.canvas

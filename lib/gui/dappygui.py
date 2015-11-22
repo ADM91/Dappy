@@ -47,15 +47,14 @@ class GUI():
 
         # Get the window properly
         self.window = self.builder.get_object("main-window")
+        self.window.connect("delete_event",self.quit)
 
         # Initialize canvas
         viewport = self.builder.get_object("viewport-for-canvas")
         viewport.add(self.DAPPY.get_canvas())
 
         # Set the first tool to use...
-        # TODO: select the proper default tool
-        #current_tool = "btn-tool-free-select"
-        current_tool = "btn-tool-draw-rectangle"
+        current_tool = "btn-tool-paintbrush"
         self.active_tool_button = None
         self.builder.get_object(current_tool).set_active(True)
         self.change_tool_gui(self.builder.get_object(current_tool))
@@ -133,9 +132,23 @@ class GUI():
                 color_frame.add(colorcell)
 
 
-    def quit(self, window):
-        self.DAPPY.quit(self.window)
-
+    def quit(self, window,event=-100):
+        q=False;
+        if self.DAPPY.canvas.is_modified():
+            warning = gtk.MessageDialog(self.window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "Your canvas has been modified. Are you sure you want to quit now?")
+            a = warning.run()
+            warning.destroy()
+            if a==-5:
+                q=True
+        else:
+            q=True
+        if q:
+            if event==gtk.gdk.DELETE:
+                return False
+            else:
+                gtk.main_quit()
+        else:
+            return True
 
     def color_changed(self, widget, event):
         if widget==self.primary:
@@ -217,10 +230,8 @@ class GUI():
     def save_as(self, widget):
         self.DAPPY.save_as()
 
-
     def cut(self, widget):
         self.DAPPY.cut()
-
 
     def copy(self, widget):
         self.DAPPY.copy()
