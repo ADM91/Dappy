@@ -83,7 +83,8 @@ class Dappy():
                       "eraser"          : EraserTool(self.canvas),
                       "draw-ellipse"    : EllipseTool(self.canvas), 
                       "color-picker"    : ColorPickerTool(self.canvas),
-                      "rect-select"     : RectangleSelectTool(self.canvas)}
+                      "rect-select"     : RectangleSelectTool(self.canvas),
+                      "airbrush"        : AirBrushTool(self.canvas)}
 
         self.canvas.clear_overlay()
         self.canvas.print_tool()

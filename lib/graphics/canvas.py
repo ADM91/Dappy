@@ -124,9 +124,8 @@ class Canvas(gtk.DrawingArea):
     def button_pressed(self, widget, event):
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.active_tool.begin(event.x, event.y,event.button)
+            self.swap_buffers()
             
-
-
     def button_released(self, widget, event):
         self.active_tool.end(event.x, event.y)
         self.swap_buffers()

@@ -87,7 +87,7 @@ class ImageFile:
             canonical_filename = path + os.sep + filename
             file_dialog.set_filename(canonical_filename)
         else:
-            file_dialog.set_current_folder(path+"test")
+            file_dialog.set_current_folder(path)
 
         for tool in self.TOOLS_BY_FILTER.values():
             file_dialog.add_filter(tool.get_filter())
