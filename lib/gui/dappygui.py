@@ -34,6 +34,7 @@ _ = gettext.gettext
 class GUI():
     DAPPY = None
     builder = None
+    block_tool_event = None
 
     def __init__(self, dappy):
         self.DAPPY = dappy
@@ -50,12 +51,6 @@ class GUI():
         # Initialize canvas
         viewport = self.builder.get_object("viewport-for-canvas")
         viewport.add(self.DAPPY.canvas)
-
-        # Set the first tool to use...
-        current_tool = "btn-tool-paintbrush"
-        self.active_tool_button = None
-        self.builder.get_object(current_tool).set_active(True)
-        self.change_tool_gui(self.builder.get_object(current_tool))
 
         # Get the toolbar and set it not to show text
         self.toolbar = self.builder.get_object("toolbar")
@@ -87,6 +82,12 @@ class GUI():
 
         # Show the window
         self.window.show_all()
+        
+        # Set the first tool to use...
+        current_tool = "btn-tool-paintbrush"
+        self.block_tool_event = False
+        self.active_tool_button = None
+        self.builder.get_object(current_tool).set_active(True)
 
 
     def __init_colors(self, colorsgrid):
@@ -174,13 +175,22 @@ class GUI():
 
 
     def change_tool_gui(self, newtool):
-        if newtool.get_active():
-            prevtool = self.active_tool_button
-            if newtool != prevtool:
-                self.active_tool_button = newtool
-                if prevtool != None:
-                    prevtool.set_active(False)
-                self.DAPPY.change_tool(gtk.Buildable.get_name(newtool).replace("btn-tool-", ""))
+        if not self.block_tool_event:
+            if newtool.get_active():
+                prevtool = self.active_tool_button
+                if newtool != prevtool:
+                    toolname =  gtk.Buildable.get_name(newtool).replace("btn-tool-", "")
+                    self.active_tool_button = newtool
+                    if prevtool != None:
+                        self.block_tool_event = True
+                        prevtool.set_active(False)
+                        self.block_tool_event = False
+                    self.DAPPY.change_tool(toolname)
+                    self.change_2nd_toolbar(toolname)
+            else:
+                self.block_tool_event = True
+                newtool.set_active(True)
+                self.block_tool_event = False
 
 
     def change_primary_alpha(self, slider):
@@ -212,7 +222,13 @@ class GUI():
         else:
             print('Button %s unknown')%event.action
             
-        
+    def change_2nd_toolbar(self,tool):
+        fig_tb = self.builder.get_object("figure-toolbar")
+        if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
+            fig_tb.show_all()
+        else:
+            fig_tb.hide_all()
+
     def new(self, widget):
         print "new"
 
