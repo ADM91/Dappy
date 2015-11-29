@@ -68,6 +68,8 @@ class GUI():
         self.secondary.connect("color-changed-event", self.color_changed)
         secondary_frame = self.builder.get_object("secondary-color")
         secondary_frame.add(self.secondary)
+        self.swap_cols = self.builder.get_object("swap-colors")
+        self.swap_cols.connect("button-press-event", self.color_changed)
 
         # Fix alpha sliders
         a1 = self.builder.get_object("primary-color-alpha")
@@ -158,6 +160,15 @@ class GUI():
             self.secondary.modify_color(widget)
             c = widget.get_color()
             self.DAPPY.set_secondary_color(c)
+        elif widget==self.swap_cols:
+            cs = self.primary.get_color()
+            cs.set_alpha(self.DAPPY.get_secondary_color().get_alpha())
+            cp = self.secondary.get_color()
+            cp.set_alpha(self.DAPPY.get_primary_color().get_alpha())
+            self.DAPPY.set_primary_color(cp)
+            self.primary.set_color(cp)
+            self.DAPPY.set_secondary_color(cs)
+            self.secondary.set_color(cs)
         else:
             c = widget.get_color()
             if event.type==gtk.gdk.MOTION_NOTIFY:
@@ -172,7 +183,6 @@ class GUI():
                 c.set_alpha(self.DAPPY.get_secondary_color().get_alpha())
                 self.DAPPY.set_secondary_color(c)
                 self.secondary.set_color(c)
-
 
     def change_tool_gui(self, newtool):
         if not self.block_tool_event:
@@ -224,10 +234,13 @@ class GUI():
             
     def change_2nd_toolbar(self,tool):
         fig_tb = self.builder.get_object("figure-toolbar")
+        misc_tb = self.builder.get_object("misc-toolbar")
         if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
             fig_tb.show_all()
+            misc_tb.hide_all()
         else:
             fig_tb.hide_all()
+            misc_tb.show_all()
 
     def new(self, widget):
         print "new"

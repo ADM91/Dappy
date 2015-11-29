@@ -373,6 +373,18 @@
           </packing>
         </child>
         <child>
+          <object class="GtkToolbar" id="misc-toolbar">
+            <property name="height_request">33</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -804,7 +816,7 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
         <child>
@@ -815,7 +827,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child>
@@ -861,8 +873,8 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="x">16</property>
-                        <property name="y">13</property>
+                        <property name="x">22</property>
+                        <property name="y">20</property>
                       </packing>
                     </child>
                     <child>
@@ -892,8 +904,28 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="x">3</property>
-                        <property name="y">3</property>
+                        <property name="x">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEventBox" id="swap-colors">
+                        <property name="width_request">20</property>
+                        <property name="height_request">20</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkImage" id="c_swap_im">
+                            <property name="width_request">20</property>
+                            <property name="height_request">20</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="pixbuf">icons/SwapCol.png</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="x">4</property>
+                        <property name="y">19</property>
                       </packing>
                     </child>
                   </object>
@@ -1584,7 +1616,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
         <child>
@@ -1596,7 +1628,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">6</property>
+            <property name="position">7</property>
           </packing>
         </child>
       </object>
