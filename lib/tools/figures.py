@@ -31,15 +31,9 @@ class RectangleTool(DragAndDropTool):
         w = self.final_x - self.initial_x
         h = self.final_y - self.initial_y
         context.rectangle(self.initial_x, self.initial_y, w, h)
-        if self.m_button==3:
-            self.use_primary_color(context)
-        else:
-            self.use_secondary_color(context)
+        self.use_fill_color(context,self.m_button)
         context.fill_preserve()
-        if self.m_button==3:
-            self.use_secondary_color(context)
-        else:
-            self.use_primary_color(context)
+        self.use_primary_color(context,self.m_button)
         context.stroke()
 
 
@@ -52,15 +46,9 @@ class RoundedRectangleTool(DragAndDropTool):
         w = self.final_x - self.initial_x
         h = self.final_y - self.initial_y
         context.rectangle(self.initial_x, self.initial_y, w, h)
-        if self.m_button==3:
-            self.use_primary_color(context)
-        else:
-            self.use_secondary_color(context)
+        self.use_fill_color(context,self.m_button)
         context.fill_preserve()
-        if self.m_button==3:
-            self.use_secondary_color(context)
-        else:
-            self.use_primary_color(context)
+        self.use_primary_color(context,self.m_button)
         context.save()
         context.set_line_width(5)
         context.set_line_join(cairo.LINE_JOIN_ROUND)
@@ -82,10 +70,7 @@ class EllipseTool(DragAndDropTool):
             context.translate(self.initial_x + w/2., self.initial_y + h/2.)
             context.scale(w/2., h/2.)
             context.arc(0., 0., 1., 0., 2 * math.pi)
-            if self.m_button==3:
-                self.use_primary_color(context)
-            else:
-                self.use_secondary_color(context)
+            self.use_fill_color(context,self.m_button)
             context.fill_preserve()
             context.restore()
             if self.m_button==3:
@@ -94,10 +79,7 @@ class EllipseTool(DragAndDropTool):
                 self.use_primary_color(context)
             #context.set_antialias(cairo.ANTIALIAS_NONE)
         else:
-            if self.m_button==3:
-                self.use_secondary_color(context)
-            else:
-                self.use_primary_color(context)
+            self.use_primary_color(context,self.m_button)
             context.set_antialias(cairo.ANTIALIAS_NONE)
             context.move_to(self.initial_x, self.initial_y)
             context.line_to(self.final_x, self.final_y)

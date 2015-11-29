@@ -73,10 +73,7 @@ class EraserTool(PencilTool):
         context.set_line_join(cairo.LINE_JOIN_MITER)
         context.move_to(self.initial_x, self.initial_y)
         context.set_line_width(8)
-        if self.m_button==3:
-            self.use_primary_color(context)
-        else:
-            self.use_secondary_color(context)
+        self.use_secondary_color(context,self.m_button)
         for point in self.points:
             context.line_to(point[0], point[1])
         context.set_operator(cairo.OPERATOR_SOURCE)
@@ -92,10 +89,7 @@ class PaintbrushTool(PencilTool):
         context.set_line_join(cairo.LINE_JOIN_ROUND)
         context.move_to(self.initial_x, self.initial_y)
         context.set_line_width(8)
-        if self.m_button==3:
-            self.use_secondary_color(context)
-        else:
-            self.use_primary_color(context)
+        self.use_primary_color(context,self.m_button)
         for point in self.points:
             context.line_to(point[0], point[1])
         context.stroke()
@@ -110,10 +104,7 @@ class AirBrushTool(PencilTool):
         context.set_line_join(cairo.LINE_JOIN_ROUND)
         
         context.set_line_width(2)
-        if self.m_button==3:
-            self.use_secondary_color(context)
-        else:
-            self.use_primary_color(context)
+        self.use_primary_color(context,self.m_button)
 
         for n in range(len(self.points)-1):
             if n==0:

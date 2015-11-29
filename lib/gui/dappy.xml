@@ -16,6 +16,21 @@
     <property name="page_increment">10</property>
     <property name="page_size">10</property>
   </object>
+  <object class="GtkImage" id="fig-no-fill-icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">icons/FigNoFill.png</property>
+  </object>
+  <object class="GtkImage" id="fig-prim-fill-icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">icons/FigPrimFill.png</property>
+  </object>
+  <object class="GtkImage" id="fig-sec-fill-icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">icons/FigSecFill.png</property>
+  </object>
   <object class="GtkWindow" id="main-window">
     <property name="width_request">800</property>
     <property name="height_request">600</property>
@@ -350,15 +365,50 @@
         </child>
         <child>
           <object class="GtkToolbar" id="figure-toolbar">
+            <property name="height_request">35</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkToolButton" id="Test">
+              <object class="GtkRadioToolButton" id="figure-secondary-fill">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="use_action_appearance">False</property>
-                <property name="label" translatable="yes">toolbutton1</property>
+                <property name="label" translatable="yes">figure-secondary-fill</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-orientation-landscape</property>
+                <property name="icon_widget">fig-sec-fill-icon</property>
+                <property name="active">True</property>
+                <signal name="toggled" handler="set_figure_fill" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="figure-primary-fill">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="label" translatable="yes">figure-primary-fill</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">fig-prim-fill-icon</property>
+                <property name="group">figure-secondary-fill</property>
+                <signal name="toggled" handler="set_figure_fill" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="figure-no-fill">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="label" translatable="yes">figure-no-fill</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">fig-no-fill-icon</property>
+                <property name="group">figure-secondary-fill</property>
+                <signal name="toggled" handler="set_figure_fill" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -374,7 +424,7 @@
         </child>
         <child>
           <object class="GtkToolbar" id="misc-toolbar">
-            <property name="height_request">33</property>
+            <property name="height_request">35</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
           </object>

@@ -59,12 +59,9 @@ class Canvas(gtk.DrawingArea):
     bg_init=None
     bg_col = None
     UNDO_BUFFER = undoBuffer()
-    select_active = None;
-    modified = None;
-    
-    
-    
-
+    select_active = None
+    modified = None
+    fig_fill_type = None
 
     def __init__(self):
         # Initializing gtk.DrawingArea superclass
@@ -88,6 +85,8 @@ class Canvas(gtk.DrawingArea):
         self.select_active = False
         self.select_xp = None
         self.select_yp = None
+        
+        self.fig_fill_type = 0
         
         self.modified = False
         

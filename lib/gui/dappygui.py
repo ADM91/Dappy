@@ -241,6 +241,16 @@ class GUI():
         else:
             fig_tb.hide_all()
             misc_tb.show_all()
+            
+    def set_figure_fill(self,widget):
+        if widget.get_active():
+            fill_name =  gtk.Buildable.get_name(widget).replace("figure-", "").replace("-fill", "")
+            if fill_name == "secondary":
+                self.DAPPY.canvas.fig_fill_type=0
+            elif fill_name == "primary":
+                self.DAPPY.canvas.fig_fill_type=1
+            elif fill_name == "no":
+                self.DAPPY.canvas.fig_fill_type=2
 
     def new(self, widget):
         print "new"

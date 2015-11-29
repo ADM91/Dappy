@@ -30,8 +30,5 @@ class StraightLineTool(DragAndDropTool):
 
         context.move_to(self.initial_x, self.initial_y)
         context.line_to(self.final_x, self.final_y)
-        if self.m_button==3:
-            self.use_secondary_color(context)
-        else:
-            self.use_primary_color(context)
+        self.use_primary_color(context,self.m_button)
         context.stroke()

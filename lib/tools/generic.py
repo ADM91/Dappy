@@ -58,11 +58,28 @@ class Tool(gtk.Object):
         context.set_source_rgba(color.get_red(), color.get_green(),
            color.get_blue(), color.get_alpha())
 
-    def use_primary_color(self, context):
-        self.__use_color(context, self.primary)
+    def __use_no_color(self, context):
+        context.set_source_rgba(0,0,0,0)
 
-    def use_secondary_color(self, context):
-        self.__use_color(context, self.secondary)
+    def use_primary_color(self, context, button=1):
+        if button==3:
+            self.__use_color(context, self.secondary)
+        else:
+            self.__use_color(context, self.primary)
+
+    def use_secondary_color(self, context, button=1):
+        if button==3:
+            self.__use_color(context, self.primary)
+        else:
+            self.__use_color(context, self.secondary)
+    
+    def use_fill_color(self, context, button=1):
+        if self.canvas.fig_fill_type==0:
+            self.use_secondary_color(context, button)
+        elif self.canvas.fig_fill_type==1:
+            self.use_primary_color(context, button)
+        else:
+            self.__use_no_color(context)
 
     def set_primary_color(self, color):
         self.primary = color
