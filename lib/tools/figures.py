@@ -42,19 +42,49 @@ class RoundedRectangleTool(DragAndDropTool):
     def draw(self, context):
         if self.mode == self.READY:
             return
-
-        w = self.final_x - self.initial_x
-        h = self.final_y - self.initial_y
-        context.rectangle(self.initial_x, self.initial_y, w, h)
+            
+        R = 20
+        xfac = 1
+        yfac = 1
+        w = abs(self.final_x - self.initial_x)
+        h = abs(self.final_y - self.initial_y)
+        if self.initial_x > self.final_x:
+            xfac = -1
+        if self.initial_y > self.final_y:
+            yfac = -1
+        clk = xfac==yfac
+        a=-yfac*math.pi/2.0
+        R = min(R,min(w,h)/2)
+        initial_xc = self.initial_x+xfac*R
+        final_xc = self.final_x-xfac*R
+        initial_yc = self.initial_y+yfac*R
+        final_yc = self.final_y-yfac*R
+        
+        context.move_to(final_xc,self.initial_y)
+        a = self.corner(context,final_xc,initial_yc,R,a,clk)
+        context.line_to(self.final_x,final_yc)
+        a = self.corner(context,final_xc,final_yc,R,a,clk)
+        context.line_to(initial_xc,self.final_y)
+        a = self.corner(context,initial_xc,final_yc,R,a,clk)
+        context.line_to(self.initial_x,initial_yc)
+        a = self.corner(context,initial_xc,initial_yc,R,a,clk)
+        context.close_path()
         self.use_fill_color(context,self.m_button)
         context.fill_preserve()
         self.use_primary_color(context,self.m_button)
         context.save()
         context.set_line_width(5)
-        context.set_line_join(cairo.LINE_JOIN_ROUND)
         context.stroke()
         context.restore()
-
+    
+    def corner(self,context,x,y,R,a1,clk):
+        if clk:
+            a = a1+math.pi/2.0
+            context.arc(x,y,R,a1,a)
+        else:
+            a = a1-math.pi/2.0
+            context.arc_negative(x,y,R,a1,a)
+        return a
 
 class EllipseTool(DragAndDropTool):
     name = 'Ellipse'
