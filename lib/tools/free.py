@@ -96,20 +96,42 @@ class PaintbrushTool(PencilTool):
         
 class AirBrushTool(PencilTool):
     name = 'AirBrush';
+    
+    def move(self, x, y):
+        if self.mode == self.DRAWING:
+            xd = x-self.points[-1][0]
+            yd = y-self.points[-1][1]
+            sq_dist = (xd)**2 + (yd)**2
+            if sq_dist>16:
+                n = int(sq_dist**.5)
+                xd /= n
+                yd /= n
+                x = self.points[-1][0]
+                y = self.points[-1][1]
+                for i in range(n):
+                    x+=xd
+                    y+=yd
+                    self.points.insert(len(self.points), (x, y))
+            else:
+                self.points.insert(len(self.points), (x, y))    
+    
     def draw(self, context):
         if self.mode == self.READY:
             return
+        brush = cairo.ImageSurface.create_from_png("Brushes/AirBrush.png")
+        for n in range(len(self.points)):
+                context.set_source_surface(brush, self.points[n][0]-20, self.points[n][1]-20)
+                context.paint()
 
-        #context.set_line_cap(cairo.LINE_CAP_ROUND)
-        context.set_line_join(cairo.LINE_JOIN_ROUND)
-        
-        context.set_line_width(2)
-        self.use_primary_color(context,self.m_button)
-
-        for n in range(len(self.points)-1):
-            if n==0:
-                context.move_to(self.initial_x, self.initial_y)
-            else:
-                context.move_to(self.points[n-1][0], self.points[n-1][1])
-            context.line_to(self.points[n][0], self.points[n][1])
-            context.stroke()
+#        context.set_line_join(cairo.LINE_JOIN_ROUND)
+#        
+#        context.set_line_width(2)
+#        self.use_primary_color(context,self.m_button)
+#
+#        for n in range(len(self.points)-1):
+#            if n==0:
+#                context.move_to(self.initial_x, self.initial_y)
+#            else:
+#                context.move_to(self.points[n-1][0], self.points[n-1][1])
+#            context.line_to(self.points[n][0], self.points[n][1])
+#            context.stroke()
