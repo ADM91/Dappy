@@ -39,9 +39,9 @@ class FancyCanvas(Canvas):
         self.MARGIN = 20
 
         # Shadows to distribute around canvas (makes it more cute!)
-        str = "pixmaps/bl-corner-shadow.png"
+        str = "GUI/bl-corner-shadow.png"
         self.BL_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
-        str = "pixmaps/tr-corner-shadow.png"
+        str = "GUI/tr-corner-shadow.png"
         self.TR_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
         self.side_alpha_channels = [0.4, 0.39, 0.37, 0.32, 0.24, 0.16, 0.08, 0.04, 0.01]
 

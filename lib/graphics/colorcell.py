@@ -34,7 +34,7 @@ class ColorCell(gtk.DrawingArea):
         super(ColorCell, self).__init__()
         self.set_size_request(self.WIDTH, self.HEIGHT)
 
-        self.gloss = cairo.ImageSurface.create_from_png("pixmaps/glossy-color.png")
+        self.gloss = cairo.ImageSurface.create_from_png("GUI/glossy-color.png")
         self.color = RGBAColor(red, green, blue, alpha)
 
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.SCROLL)

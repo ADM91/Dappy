@@ -34,6 +34,7 @@ class RectangleTool(DragAndDropTool):
         self.use_fill_color(context,self.m_button)
         context.fill_preserve()
         self.use_primary_color(context,self.m_button)
+        context.set_line_width(self.canvas.figure_linewidth)
         context.stroke()
 
 
@@ -43,7 +44,7 @@ class RoundedRectangleTool(DragAndDropTool):
         if self.mode == self.READY:
             return
             
-        R = 20
+        R = self.canvas.figure_corner_radius
         xfac = 1
         yfac = 1
         w = abs(self.final_x - self.initial_x)
@@ -73,7 +74,7 @@ class RoundedRectangleTool(DragAndDropTool):
         context.fill_preserve()
         self.use_primary_color(context,self.m_button)
         context.save()
-        context.set_line_width(5)
+        context.set_line_width(self.canvas.figure_linewidth)
         context.stroke()
         context.restore()
     
@@ -113,11 +114,12 @@ class EllipseTool(DragAndDropTool):
             context.set_antialias(cairo.ANTIALIAS_NONE)
             context.move_to(self.initial_x, self.initial_y)
             context.line_to(self.final_x, self.final_y)
+        context.set_line_width(self.canvas.figure_linewidth)
         context.stroke()
 
 class RectangleSelectTool(DragAndDropTool):
     name = 'RectSelect'
-    Draw2Overlay = True;
+    Draw2Overlay = True
 
     def begin(self, x, y,button):
         self.canvas.clear_overlay()

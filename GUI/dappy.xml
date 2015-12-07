@@ -2,41 +2,41 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">265</property>
-    <property name="value">265</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="upper">265</property>
-    <property name="value">265</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
-  </object>
   <object class="GtkImage" id="fig-no-fill-icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">icons/FigNoFill.png</property>
+    <property name="pixbuf">FigNoFill.png</property>
   </object>
   <object class="GtkImage" id="fig-prim-fill-icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">icons/FigPrimFill.png</property>
+    <property name="pixbuf">FigPrimFill.png</property>
   </object>
   <object class="GtkImage" id="fig-sec-fill-icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">icons/FigSecFill.png</property>
+    <property name="pixbuf">FigSecFill.png</property>
+  </object>
+  <object class="GtkAdjustment" id="figure_corner_rad_adj">
+    <property name="lower">5</property>
+    <property name="upper">200</property>
+    <property name="value">20</property>
+    <property name="step_increment">5</property>
+    <property name="page_increment">5</property>
+  </object>
+  <object class="GtkAdjustment" id="figure_linewidth_adj">
+    <property name="lower">0.5</property>
+    <property name="upper">100</property>
+    <property name="value">5</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">3</property>
   </object>
   <object class="GtkWindow" id="main-window">
     <property name="width_request">800</property>
     <property name="height_request">600</property>
     <property name="can_focus">False</property>
     <property name="title">Dappy</property>
-    <property name="icon">icons/dappy.svg</property>
+    <property name="icon">dappy.svg</property>
     <child>
       <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
@@ -415,6 +415,74 @@
                 <property name="homogeneous">True</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="fig-toolbar-sep1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolItem" id="fig_line_width_toolspace">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <child>
+                  <object class="GtkSpinButton" id="figure-line-width">
+                    <property name="width_request">78</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="events">GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK</property>
+                    <property name="caps_lock_warning">False</property>
+                    <property name="primary_icon_pixbuf">LineWidth.png</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">figure_linewidth_adj</property>
+                    <property name="digits">1</property>
+                    <property name="numeric">True</property>
+                    <signal name="value-changed" handler="change_figure_linewidth" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolItem" id="fig_corner_rad_toolspace">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <child>
+                  <object class="GtkSpinButton" id="figure-corner-radius">
+                    <property name="width_request">78</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="events">GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK</property>
+                    <property name="caps_lock_warning">False</property>
+                    <property name="primary_icon_pixbuf">CornerWidth.png</property>
+                    <property name="primary_icon_activatable">True</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">figure_corner_rad_adj</property>
+                    <property name="digits">1</property>
+                    <property name="numeric">True</property>
+                    <signal name="value-changed" handler="change_figure_corner_radius" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -459,7 +527,7 @@
                           <object class="GtkImage" id="image2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-rect-select-22.png</property>
+                            <property name="pixbuf">stock-tool-rect-select-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -480,7 +548,7 @@
                           <object class="GtkImage" id="image1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-free-select-22.png</property>
+                            <property name="pixbuf">stock-tool-free-select-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -496,7 +564,7 @@
                           <object class="GtkImage" id="image3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-bucket-fill-22.png</property>
+                            <property name="pixbuf">stock-tool-bucket-fill-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -520,7 +588,7 @@
                           <object class="GtkImage" id="image4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-eraser-22.png</property>
+                            <property name="pixbuf">stock-tool-eraser-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -542,7 +610,7 @@
                           <object class="GtkImage" id="image5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-color-picker-22.png</property>
+                            <property name="pixbuf">stock-tool-color-picker-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -565,7 +633,7 @@
                           <object class="GtkImage" id="image6">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-zoom-22.png</property>
+                            <property name="pixbuf">stock-tool-zoom-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -589,7 +657,7 @@
                           <object class="GtkImage" id="image7">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-paintbrush-22.png</property>
+                            <property name="pixbuf">stock-tool-paintbrush-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -613,7 +681,7 @@
                           <object class="GtkImage" id="image8">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-airbrush-22.png</property>
+                            <property name="pixbuf">stock-tool-airbrush-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -636,7 +704,7 @@
                           <object class="GtkImage" id="image9">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-text-22.png</property>
+                            <property name="pixbuf">stock-tool-text-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -660,7 +728,7 @@
                           <object class="GtkImage" id="image10">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-pencil-22.png</property>
+                            <property name="pixbuf">stock-tool-pencil-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -683,7 +751,7 @@
                           <object class="GtkImage" id="image11">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-draw-curved-line-22.png</property>
+                            <property name="pixbuf">stock-tool-draw-curved-line-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -707,7 +775,7 @@
                           <object class="GtkImage" id="image12">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-draw-straight-line-22.png</property>
+                            <property name="pixbuf">stock-tool-draw-straight-line-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -730,7 +798,7 @@
                           <object class="GtkImage" id="image13">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-draw-polygon-22.png</property>
+                            <property name="pixbuf">stock-tool-draw-polygon-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -754,7 +822,7 @@
                           <object class="GtkImage" id="image14">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-draw-rectangle-22.png</property>
+                            <property name="pixbuf">stock-tool-draw-rectangle-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -776,7 +844,7 @@
                           <object class="GtkImage" id="image15">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-draw-rounded-rectangle-22.png</property>
+                            <property name="pixbuf">stock-tool-draw-rounded-rectangle-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -800,7 +868,7 @@
                           <object class="GtkImage" id="image16">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/stock-tool-draw-ellipse-22.png</property>
+                            <property name="pixbuf">stock-tool-draw-ellipse-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -969,7 +1037,7 @@
                             <property name="height_request">20</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">icons/SwapCol.png</property>
+                            <property name="pixbuf">SwapCol.png</property>
                           </object>
                         </child>
                       </object>
@@ -1623,7 +1691,7 @@
                         <property name="width_request">140</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">adjustment1</property>
+                        <property name="adjustment">primary_alpha_adj</property>
                         <property name="draw_value">False</property>
                         <signal name="value-changed" handler="change_primary_alpha" swapped="no"/>
                       </object>
@@ -1638,7 +1706,7 @@
                         <property name="width_request">140</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">adjustment2</property>
+                        <property name="adjustment">secondary_alpha_adj</property>
                         <property name="draw_value">False</property>
                         <signal name="value-changed" handler="change_secondary_alpha" swapped="no"/>
                       </object>
@@ -1683,5 +1751,18 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkAdjustment" id="primary_alpha_adj">
+    <property name="upper">265</property>
+    <property name="value">265</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="secondary_alpha_adj">
+    <property name="upper">265</property>
+    <property name="value">265</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
   </object>
 </interface>

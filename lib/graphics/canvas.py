@@ -76,11 +76,14 @@ class Canvas(gtk.DrawingArea):
         self.connect("motion-notify-event", self.motion_event)
 
         self.set_size(550, 412)
-        self.ALPHA_PATTERN = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("pixmaps/alpha-pattern.png"))
+        self.ALPHA_PATTERN = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("GUI/alpha-pattern.png"))
         self.ALPHA_PATTERN.set_extend(cairo.EXTEND_REPEAT)
         
         self.bg_init=0
         self.bg_col = (1, 1, 1, 1)
+        
+        self.figure_linewidth=0
+        self.figure_corner_radius=0
         
         self.select_active = False
         self.select_xp = None
@@ -316,7 +319,7 @@ class Canvas(gtk.DrawingArea):
             c_w= int(max(xp)-min(xp))
             c_h= int(max(yp)-min(yp))
             if c_h>0 and c_w>0:
-                c_s = c_w*4;
+                c_s = c_w*4
                 c_data=[t_data[0]]*(c_h*c_s)
                 c_y = int(min(yp))
                 c_x = int(min(xp))
@@ -361,7 +364,7 @@ class Canvas(gtk.DrawingArea):
                 #The hacky solution is to copy the black pixels to a temporary array
                 #Paint new pixels, and then copy the blank ones back in.
                 if self.bg_col[3] == 0:
-                    t_data = data[:];
+                    t_data = data[:]
                     context = cairo.Context(self.surface)
                     context.paint()
                     data[:] = t_data[:]
@@ -369,7 +372,7 @@ class Canvas(gtk.DrawingArea):
         
     
     def paste(self):
-        image = self.clipboard.wait_for_image();
+        image = self.clipboard.wait_for_image()
         if image != None:
             self.update_undo_buffer(1)
             self.set_size(max(self.width,image.get_width()), max(self.height,image.get_height()))

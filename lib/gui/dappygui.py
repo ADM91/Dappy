@@ -42,7 +42,8 @@ class GUI():
         self.DAPPY.canvas.connect("color_pick_event", self.color_changed)
         self.DAPPY.canvas.connect("change_sensitivty", self.set_sensitivity)
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + os.sep + "dappy.xml"))
+        self.builder.add_from_file("GUI/dappy.xml")
+        #os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + "glade" + os.sep + "dappy.xml")
 
         # Get the window properly
         self.window = self.builder.get_object("main-window")
@@ -78,6 +79,18 @@ class GUI():
         a2 = self.builder.get_object("secondary-color-alpha")
         a2.set_value(a2.get_value())
         self.MAX_ALPHA_2 = a2.get_value()
+        
+        #toolbar handels
+        self.fig_tb = self.builder.get_object("figure-toolbar")
+        self.misc_tb = self.builder.get_object("misc-toolbar")
+        
+        #Fix spinners
+        fig_lw = self.builder.get_object("figure-line-width")
+        fig_lw .set_value(fig_lw .get_value())
+        self.DAPPY.canvas.figure_linewidth=fig_lw .get_value()
+        self.fig_cr = self.builder.get_object("figure-corner-radius")
+        self.fig_cr .set_value(self.fig_cr .get_value())
+        self.DAPPY.canvas.figure_corner_radius=self.fig_cr .get_value()
 
         # Connecting signals properly...
         self.builder.connect_signals(self)
@@ -86,10 +99,10 @@ class GUI():
         self.window.show_all()
         
         # Set the first tool to use...
-        current_tool = "btn-tool-paintbrush"
+        self.curr_tool = self.builder.get_object("btn-tool-paintbrush")
         self.block_tool_event = False
         self.active_tool_button = None
-        self.builder.get_object(current_tool).set_active(True)
+        self.curr_tool.set_active(True)
 
 
     def __init_colors(self, colorsgrid):
@@ -134,7 +147,7 @@ class GUI():
 
 
     def quit(self, window,event=-100):
-        q=False;
+        q=False
         if self.DAPPY.canvas.is_modified():
             warning = gtk.MessageDialog(self.window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "Your canvas has been modified. Are you sure you want to quit now?")
             a = warning.run()
@@ -187,6 +200,7 @@ class GUI():
     def change_tool_gui(self, newtool):
         if not self.block_tool_event:
             if newtool.get_active():
+                self.curr_tool = newtool
                 prevtool = self.active_tool_button
                 if newtool != prevtool:
                     toolname =  gtk.Buildable.get_name(newtool).replace("btn-tool-", "")
@@ -210,13 +224,20 @@ class GUI():
         self.DAPPY.set_primary_color(c)
         self.primary.set_color(c)
 
-
     def change_secondary_alpha(self, slider):
         c = self.DAPPY.get_secondary_color()
         value = slider.get_value()/self.MAX_ALPHA_2
         c.set_alpha(value)
         self.DAPPY.set_secondary_color(c)
         self.secondary.set_color(c)
+    
+    def change_figure_linewidth(self, widget):
+        self.DAPPY.canvas.figure_linewidth= widget.get_value()
+        self.curr_tool.grab_focus()
+        
+    def change_figure_corner_radius(self, widget):
+        self.DAPPY.canvas.figure_corner_radius= widget.get_value()
+        self.curr_tool.grab_focus()
         
     def set_sensitivity(self,widget,event):
         if event.action == "undo":
@@ -233,14 +254,16 @@ class GUI():
             print('Button %s unknown')%event.action
             
     def change_2nd_toolbar(self,tool):
-        fig_tb = self.builder.get_object("figure-toolbar")
-        misc_tb = self.builder.get_object("misc-toolbar")
         if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
-            fig_tb.show_all()
-            misc_tb.hide_all()
+            self.fig_tb.show_all()
+            self.misc_tb.hide_all()
+            if tool=="draw-rounded-rectangle":
+                self.fig_cr.set_sensitive(True)
+            else:
+                self.fig_cr.set_sensitive(False)
         else:
-            fig_tb.hide_all()
-            misc_tb.show_all()
+            self.fig_tb.hide_all()
+            self.misc_tb.show_all()
             
     def set_figure_fill(self,widget):
         if widget.get_active():

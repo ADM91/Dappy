@@ -29,7 +29,7 @@ class Tool(gtk.Object):
     DRAWING = 1
     EDITING = 2
     name = 'NotSet'
-    Draw2Overlay = False;
+    Draw2Overlay = False
 
     CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
 
