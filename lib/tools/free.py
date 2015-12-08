@@ -20,6 +20,8 @@
 
 import cairo
 from generic import DragAndDropTool
+import struct
+from ctypes import create_string_buffer
 
 class PencilTool(DragAndDropTool):
     points = None
@@ -55,7 +57,7 @@ class PencilTool(DragAndDropTool):
         context.stroke()
 
 class EraserTool(PencilTool):
-    name = 'Eraser';
+    name = 'Eraser'
 
     def begin(self, x, y,button):
         super(EraserTool, self).begin(x, y,button)
@@ -80,7 +82,7 @@ class EraserTool(PencilTool):
         context.stroke()
 
 class PaintbrushTool(PencilTool):
-    name = 'PaintBrush';
+    name = 'PaintBrush'
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -95,43 +97,62 @@ class PaintbrushTool(PencilTool):
         context.stroke()
         
 class AirBrushTool(PencilTool):
-    name = 'AirBrush';
+    name = 'AirBrush'
+    Brush = None
+    Brush_off = None
+    Brush_rep = None
+    scale = None
+
     
+    def begin(self, x, y,button):
+        super(AirBrushTool, self).begin(x, y,button)
+        self.Brush = cairo.ImageSurface.create_from_png("Brushes/AirBrush.png")
+        if button==3:
+            pc=self.secondary
+        else:
+            pc = self.primary
+        a = pc.get_alpha()
+        r = pc.get_red()
+        g = pc.get_green()
+        b = pc.get_blue()
+        Brush_w = self.Brush.get_width()
+        self.Brush_off =  Brush_w/2.0
+        self.Brush_rep =  Brush_w/10
+        data = self.Brush.get_data()
+        for n in range(Brush_w**2):
+            al_bin = data[n*4+3]
+            al_int = struct.unpack_from(str(1)+'B',al_bin)
+            al = float(al_int[0])/255
+            px = create_string_buffer(4)
+            struct.pack_into(str(4)+'B',px,0,int(al*b*255), int(al*g*255),int(al*r*255), int(al*a*255))
+            data[n*4:(n+1)*4] = px
+        self.scale =  self.canvas.airbrush_width/Brush_w
+        
+        
     def move(self, x, y):
         if self.mode == self.DRAWING:
             xd = x-self.points[-1][0]
             yd = y-self.points[-1][1]
-            sq_dist = (xd)**2 + (yd)**2
-            if sq_dist>16:
-                n = int(sq_dist**.5)
+            dist = (((xd)**2 + (yd)**2)**0.5)/self.scale
+            if dist>self.Brush_rep:
+                n = int(dist/self.Brush_rep)
                 xd /= n
                 yd /= n
                 x = self.points[-1][0]
                 y = self.points[-1][1]
+                self.points = list()
                 for i in range(n):
                     x+=xd
                     y+=yd
                     self.points.insert(len(self.points), (x, y))
             else:
+                self.points = list()
                 self.points.insert(len(self.points), (x, y))    
     
     def draw(self, context):
         if self.mode == self.READY:
             return
-        brush = cairo.ImageSurface.create_from_png("Brushes/AirBrush.png")
+        context.scale(self.scale,self.scale)
         for n in range(len(self.points)):
-                context.set_source_surface(brush, self.points[n][0]-20, self.points[n][1]-20)
-                context.paint()
-
-#        context.set_line_join(cairo.LINE_JOIN_ROUND)
-#        
-#        context.set_line_width(2)
-#        self.use_primary_color(context,self.m_button)
-#
-#        for n in range(len(self.points)-1):
-#            if n==0:
-#                context.move_to(self.initial_x, self.initial_y)
-#            else:
-#                context.move_to(self.points[n-1][0], self.points[n-1][1])
-#            context.line_to(self.points[n][0], self.points[n][1])
-#            context.stroke()
+            context.set_source_surface(self.Brush, (self.points[n][0])/self.scale-self.Brush_off, (self.points[n][1])/self.scale-self.Brush_off)
+            context.paint()

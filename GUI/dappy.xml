@@ -2,7 +2,19 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkAdjustment" id="airbrush_width_adj">
+    <property name="lower">0.5</property>
+    <property name="upper">100</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">3</property>
+  </object>
   <object class="GtkImage" id="fig-no-fill-icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">FigNoFill.png</property>
+  </object>
+  <object class="GtkImage" id="fig-no-fill-icon1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">FigNoFill.png</property>
@@ -12,7 +24,17 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">FigPrimFill.png</property>
   </object>
+  <object class="GtkImage" id="fig-prim-fill-icon1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">FigPrimFill.png</property>
+  </object>
   <object class="GtkImage" id="fig-sec-fill-icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">FigSecFill.png</property>
+  </object>
+  <object class="GtkImage" id="fig-sec-fill-icon1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">FigSecFill.png</property>
@@ -491,6 +513,47 @@
           </packing>
         </child>
         <child>
+          <object class="GtkToolbar" id="airbrush-toolbar">
+            <property name="height_request">35</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkToolItem" id="airbrush_width_toolspace1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <child>
+                  <object class="GtkSpinButton" id="airbrush-width">
+                    <property name="width_request">78</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="events">GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK</property>
+                    <property name="invisible_char">•</property>
+                    <property name="invisible_char_set">True</property>
+                    <property name="caps_lock_warning">False</property>
+                    <property name="primary_icon_pixbuf">LineWidth.png</property>
+                    <property name="primary_icon_activatable">True</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">airbrush_width_adj</property>
+                    <property name="digits">1</property>
+                    <property name="numeric">True</property>
+                    <signal name="value-changed" handler="change_airbrush_width" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkToolbar" id="misc-toolbar">
             <property name="height_request">35</property>
             <property name="visible">True</property>
@@ -499,7 +562,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
         <child>
@@ -934,7 +997,7 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child>
@@ -945,7 +1008,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
         <child>
@@ -1734,7 +1797,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">6</property>
+            <property name="position">7</property>
           </packing>
         </child>
         <child>
@@ -1746,7 +1809,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">7</property>
+            <property name="position">8</property>
           </packing>
         </child>
       </object>

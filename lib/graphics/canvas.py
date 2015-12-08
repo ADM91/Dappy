@@ -84,6 +84,7 @@ class Canvas(gtk.DrawingArea):
         
         self.figure_linewidth=0
         self.figure_corner_radius=0
+        self.airbrush_width=0
         
         self.select_active = False
         self.select_xp = None
@@ -164,6 +165,8 @@ class Canvas(gtk.DrawingArea):
         context = cairo.Context(tmp_surf)
         #draw to this temporary surface
         self.draw(context)
+        if self.active_tool.name == "AirBrush" and  self.active_tool.mode == self.active_tool.DRAWING:
+            self.surface = tmp_surf
         #get widget window as context
         wincontext = widget.window.cairo_create()
         #clip to image size

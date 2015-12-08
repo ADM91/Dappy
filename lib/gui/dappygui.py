@@ -82,15 +82,19 @@ class GUI():
         
         #toolbar handels
         self.fig_tb = self.builder.get_object("figure-toolbar")
+        self.airb_tb = self.builder.get_object("airbrush-toolbar")
         self.misc_tb = self.builder.get_object("misc-toolbar")
         
         #Fix spinners
         fig_lw = self.builder.get_object("figure-line-width")
         fig_lw .set_value(fig_lw .get_value())
-        self.DAPPY.canvas.figure_linewidth=fig_lw .get_value()
+        self.DAPPY.canvas.figure_linewidth=fig_lw.get_value()
         self.fig_cr = self.builder.get_object("figure-corner-radius")
         self.fig_cr .set_value(self.fig_cr .get_value())
-        self.DAPPY.canvas.figure_corner_radius=self.fig_cr .get_value()
+        self.DAPPY.canvas.figure_corner_radius=self.fig_cr.get_value()
+        self.airb_w = self.builder.get_object("airbrush-width")
+        self.airb_w .set_value(self.airb_w .get_value())
+        self.DAPPY.canvas.airbrush_width=self.airb_w.get_value()
 
         # Connecting signals properly...
         self.builder.connect_signals(self)
@@ -239,6 +243,10 @@ class GUI():
         self.DAPPY.canvas.figure_corner_radius= widget.get_value()
         self.curr_tool.grab_focus()
         
+    def change_airbrush_width(self, widget):
+        self.DAPPY.canvas.airbrush_width= widget.get_value()
+        self.curr_tool.grab_focus()
+        
     def set_sensitivity(self,widget,event):
         if event.action == "undo":
             ub = self.builder.get_object("undo-button")
@@ -256,13 +264,19 @@ class GUI():
     def change_2nd_toolbar(self,tool):
         if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
             self.fig_tb.show_all()
+            self.airb_tb.hide_all()
             self.misc_tb.hide_all()
             if tool=="draw-rounded-rectangle":
                 self.fig_cr.set_sensitive(True)
             else:
                 self.fig_cr.set_sensitive(False)
+        elif tool=="airbrush":
+            self.fig_tb.hide_all()
+            self.airb_tb.show_all()
+            self.misc_tb.hide_all()
         else:
             self.fig_tb.hide_all()
+            self.airb_tb.hide_all()
             self.misc_tb.show_all()
             
     def set_figure_fill(self,widget):
