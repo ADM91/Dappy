@@ -124,7 +124,8 @@ class AirBrushTool(PencilTool):
             al_int = struct.unpack_from(str(1)+'B',al_bin)
             al = float(al_int[0])/255
             px = create_string_buffer(4)
-            struct.pack_into(str(4)+'B',px,0,int(al*b*255), int(al*g*255),int(al*r*255), int(al*a*255))
+            alph = al*a
+            struct.pack_into(str(4)+'B',px,0,int(alph*b*255), int(alph*g*255),int(alph*r*255), int(alph*255))
             data[n*4:(n+1)*4] = px
         self.scale =  self.canvas.airbrush_width/Brush_w
         

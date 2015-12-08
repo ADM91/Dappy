@@ -3,7 +3,7 @@
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkAdjustment" id="airbrush_width_adj">
-    <property name="lower">0.5</property>
+    <property name="lower">5</property>
     <property name="upper">100</property>
     <property name="value">10</property>
     <property name="step_increment">1</property>
