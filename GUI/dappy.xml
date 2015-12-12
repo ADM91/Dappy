@@ -9,12 +9,12 @@
     <property name="step_increment">1</property>
     <property name="page_increment">3</property>
   </object>
-  <object class="GtkImage" id="fig-no-fill-icon">
+  <object class="GtkImage" id="crop-icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">FigNoFill.png</property>
+    <property name="pixbuf">stock-tool-crop-22.png</property>
   </object>
-  <object class="GtkImage" id="fig-no-fill-icon1">
+  <object class="GtkImage" id="fig-no-fill-icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">FigNoFill.png</property>
@@ -24,17 +24,7 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">FigPrimFill.png</property>
   </object>
-  <object class="GtkImage" id="fig-prim-fill-icon1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">FigPrimFill.png</property>
-  </object>
   <object class="GtkImage" id="fig-sec-fill-icon">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">FigSecFill.png</property>
-  </object>
-  <object class="GtkImage" id="fig-sec-fill-icon1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">FigSecFill.png</property>
@@ -554,6 +544,32 @@
           </packing>
         </child>
         <child>
+          <object class="GtkToolbar" id="select-toolbar">
+            <property name="height_request">35</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkToolButton" id="crop-button">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="label" translatable="yes">toolbutton1</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">crop-icon</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkToolbar" id="misc-toolbar">
             <property name="height_request">35</property>
             <property name="visible">True</property>
@@ -562,7 +578,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child>
@@ -641,8 +657,9 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="btn-tool-eraser">
+                      <object class="GtkToggleButton" id="btn-tool-scale">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
@@ -651,7 +668,7 @@
                           <object class="GtkImage" id="image4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">stock-tool-eraser-22.png</property>
+                            <property name="pixbuf">stock-tool-scale-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -685,9 +702,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="btn-tool-zoom">
+                      <object class="GtkToggleButton" id="btn-tool-eraser">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
@@ -696,7 +712,7 @@
                           <object class="GtkImage" id="image6">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="pixbuf">stock-tool-zoom-22.png</property>
+                            <property name="pixbuf">stock-tool-eraser-22.png</property>
                           </object>
                         </child>
                       </object>
@@ -997,7 +1013,7 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
         <child>
@@ -1008,7 +1024,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">6</property>
+            <property name="position">7</property>
           </packing>
         </child>
         <child>
@@ -1797,7 +1813,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">7</property>
+            <property name="position">8</property>
           </packing>
         </child>
         <child>
@@ -1809,7 +1825,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">8</property>
+            <property name="position">9</property>
           </packing>
         </child>
       </object>

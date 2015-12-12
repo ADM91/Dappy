@@ -83,6 +83,7 @@ class GUI():
         #toolbar handels
         self.fig_tb = self.builder.get_object("figure-toolbar")
         self.airb_tb = self.builder.get_object("airbrush-toolbar")
+        self.sel_tb = self.builder.get_object("select-toolbar")
         self.misc_tb = self.builder.get_object("misc-toolbar")
         
         #Fix spinners
@@ -265,6 +266,7 @@ class GUI():
         if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
             self.fig_tb.show_all()
             self.airb_tb.hide_all()
+            self.sel_tb.hide_all()            
             self.misc_tb.hide_all()
             if tool=="draw-rounded-rectangle":
                 self.fig_cr.set_sensitive(True)
@@ -273,10 +275,17 @@ class GUI():
         elif tool=="airbrush":
             self.fig_tb.hide_all()
             self.airb_tb.show_all()
+            self.sel_tb.hide_all()  
+            self.misc_tb.hide_all()
+        elif tool=="rect-select":
+            self.fig_tb.hide_all()
+            self.airb_tb.hide_all()
+            self.sel_tb.show_all()  
             self.misc_tb.hide_all()
         else:
             self.fig_tb.hide_all()
             self.airb_tb.hide_all()
+            self.sel_tb.hide_all()  
             self.misc_tb.show_all()
             
     def set_figure_fill(self,widget):
