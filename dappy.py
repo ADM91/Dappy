@@ -2,10 +2,10 @@
 
 #    This file is part of Dappy - Draw And Paint in Python
 #    Copyright (C) 2015 Julian Stirling
-#    
-#    Dappy was forked from Painthon, listed on Google code as GPL v2, 
+#
+#    Dappy was forked from Painthon, listed on Google code as GPL v2,
 #    copyright holder unknown.
-#    
+#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
-#    
+#
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
@@ -34,14 +34,14 @@ _ = gettext.gettext
 class Dappy():
     canvas = None
     READWRITE = None
-    
+
 
     filename = None
     path = None
 
     primary = None
     secondary = None
-    
+
     Tools = None
     picker = None
 
@@ -67,17 +67,17 @@ class Dappy():
         self.canvas.bg_col = self.secondary.get_rgba()
 
         # Defining tools
-        self.TOOLS = {"draw-rounded-rectangle" : figures.RoundedRectangleTool(self.canvas),
-                      "draw-rectangle"  : figures.RectangleTool(self.canvas),
-                      "straight-line"   : lines.StraightLineTool(self.canvas),
-                      "pencil"          : free.PencilTool(self.canvas),
-                      "paintbrush"      : free.PaintbrushTool(self.canvas),
-                      "bucket-fill"     : spots.BucketFillTool(self.canvas),
-                      "eraser"          : free.EraserTool(self.canvas),
-                      "draw-ellipse"    : figures.EllipseTool(self.canvas), 
-                      "color-picker"    : spots.ColorPickerTool(self.canvas),
-                      "rect-select"     : figures.RectangleSelectTool(self.canvas),
-                      "airbrush"        : free.AirBrushTool(self.canvas)}
+        self.TOOLS = {"draw-rounded-rectangle" : tools.RoundedRectangleTool(self.canvas),
+                      "draw-rectangle"  : tools.RectangleTool(self.canvas),
+                      "straight-line"   : tools.StraightLineTool(self.canvas),
+                      "pencil"          : tools.PencilTool(self.canvas),
+                      "paintbrush"      : tools.PaintbrushTool(self.canvas),
+                      "bucket-fill"     : tools.BucketFillTool(self.canvas),
+                      "eraser"          : tools.EraserTool(self.canvas),
+                      "draw-ellipse"    : tools.EllipseTool(self.canvas),
+                      "color-picker"    : tools.ColorPickerTool(self.canvas),
+                      "rect-select"     : tools.RectangleSelectTool(self.canvas),
+                      "airbrush"        : tools.AirBrushTool(self.canvas)}
 
         self.canvas.clear_overlay()
         self.canvas.print_tool()
@@ -125,22 +125,19 @@ class Dappy():
 
 
 if __name__ == "__main__":
-    
+
     filename = None
     if len(sys.argv) == 2:
         filename = sys.argv[1]
-    
+
     default_path = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     sys.path.insert(0, 'lib')
     from dappygui import GUI
-    from fancycanvas import FancyCanvas
-    from generic_io import ImageFile
-    from rgbacolor import RGBAColor
-    import figures
-    import free
-    import lines
-    import spots
+    from canvas import FancyCanvas
+    from file_io import ImageFile
+    from colors import RGBAColor
+    import tools
     app = Dappy(default_path, filename)
     gui = GUI(app)
 

@@ -2,10 +2,10 @@
 
 #    This file is part of Dappy - Draw And Paint in Python
 #    Copyright (C) 2015 Julian Stirling
-#    
-#    Dappy was forked from Painthon, listed on Google code as GPL v2, 
+#
+#    Dappy was forked from Painthon, listed on Google code as GPL v2,
 #    copyright holder unknown.
-#    
+#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
-#    
+#
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
@@ -24,11 +24,17 @@
 import gtk
 import gettext
 
-from hsvgenerator import HSVGenerator
-from colorcell import ColorCell
-from rgbacolor import RGBAColor
+from colors import HSVGenerator
+from colors import ColorCell
+from colors import RGBAColor
 
 _ = gettext.gettext
+
+class senstivity_data:
+
+    def __init__(self,action,sensitive):
+        self.action = action
+        self.sensitive = sensitive
 
 class GUI():
     DAPPY = None
@@ -37,7 +43,7 @@ class GUI():
 
     def __init__(self, dappy):
         self.DAPPY = dappy
-        
+
         self.DAPPY.canvas.connect("color_pick_event", self.color_changed)
         self.DAPPY.canvas.connect("change_sensitivty", self.set_sensitivity)
         self.builder = gtk.Builder()
@@ -78,13 +84,13 @@ class GUI():
         a2 = self.builder.get_object("secondary-color-alpha")
         a2.set_value(a2.get_value())
         self.MAX_ALPHA_2 = a2.get_value()
-        
+
         #toolbar handels
         self.fig_tb = self.builder.get_object("figure-toolbar")
         self.airb_tb = self.builder.get_object("airbrush-toolbar")
         self.sel_tb = self.builder.get_object("select-toolbar")
         self.misc_tb = self.builder.get_object("misc-toolbar")
-        
+
         #Fix spinners
         fig_lw = self.builder.get_object("figure-line-width")
         fig_lw .set_value(fig_lw .get_value())
@@ -101,7 +107,7 @@ class GUI():
 
         # Show the window
         self.window.show_all()
-        
+
         # Set the first tool to use...
         self.curr_tool = self.builder.get_object("btn-tool-paintbrush")
         self.block_tool_event = False
@@ -234,19 +240,19 @@ class GUI():
         c.set_alpha(value)
         self.DAPPY.set_secondary_color(c)
         self.secondary.set_color(c)
-    
+
     def change_figure_linewidth(self, widget):
         self.DAPPY.canvas.figure_linewidth= widget.get_value()
         self.curr_tool.grab_focus()
-        
+
     def change_figure_corner_radius(self, widget):
         self.DAPPY.canvas.figure_corner_radius= widget.get_value()
         self.curr_tool.grab_focus()
-        
+
     def change_airbrush_width(self, widget):
         self.DAPPY.canvas.airbrush_width= widget.get_value()
         self.curr_tool.grab_focus()
-        
+
     def set_sensitivity(self,widget,event):
         if event.action == "undo":
             ub = self.builder.get_object("undo-button")
@@ -260,12 +266,12 @@ class GUI():
             rm.set_sensitive(event.sensitive)
         else:
             print('Button %s unknown')%event.action
-            
+
     def change_2nd_toolbar(self,tool):
         if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
             self.fig_tb.show_all()
             self.airb_tb.hide_all()
-            self.sel_tb.hide_all()            
+            self.sel_tb.hide_all()
             self.misc_tb.hide_all()
             if tool=="draw-rounded-rectangle":
                 self.fig_cr.set_sensitive(True)
@@ -274,19 +280,19 @@ class GUI():
         elif tool=="airbrush":
             self.fig_tb.hide_all()
             self.airb_tb.show_all()
-            self.sel_tb.hide_all()  
+            self.sel_tb.hide_all()
             self.misc_tb.hide_all()
         elif tool=="rect-select":
             self.fig_tb.hide_all()
             self.airb_tb.hide_all()
-            self.sel_tb.show_all()  
+            self.sel_tb.show_all()
             self.misc_tb.hide_all()
         else:
             self.fig_tb.hide_all()
             self.airb_tb.hide_all()
-            self.sel_tb.hide_all()  
+            self.sel_tb.hide_all()
             self.misc_tb.show_all()
-            
+
     def set_figure_fill(self,widget):
         if widget.get_active():
             fill_name =  gtk.Buildable.get_name(widget).replace("figure-", "").replace("-fill", "")
@@ -330,6 +336,6 @@ class GUI():
 
     def undo(self, widget):
         self.DAPPY.canvas.undo()
-        
+
     def delete(self, widget):
         print "delete"
