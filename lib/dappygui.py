@@ -302,16 +302,29 @@ class GUI():
                 self.DAPPY.canvas.fig_fill_type=2
 
     def new(self, widget):
-        self.builder.get_object("primary-color-alpha").set_value(self.MAX_ALPHA_1)
-        self.builder.get_object("secondary-color-alpha").set_value(self.MAX_ALPHA_2)
-        c = RGBAColor(0, 0, 0, 1)
-        self.DAPPY.set_secondary_color(c)
-        self.secondary.set_color(c)
-        c = RGBAColor(1, 1, 1, 1)
-        self.DAPPY.set_secondary_color(c)
-        self.secondary.set_color(c)
-        self.DAPPY.canvas.clear_overlay()
-        self.DAPPY.canvas.delete()
+        n=False
+        if self.DAPPY.canvas.is_modified():
+            warning = gtk.MessageDialog(self.window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "Your canvas has been modified. Are you sure you want to close it without saving?")
+            a = warning.run()
+            warning.destroy()
+            if a==-5:
+                n=True
+        else:
+            n=True
+        if n:
+            self.builder.get_object("primary-color-alpha").set_value(self.MAX_ALPHA_1)
+            self.builder.get_object("secondary-color-alpha").set_value(self.MAX_ALPHA_2)
+            c = RGBAColor(0, 0, 0, 1)
+            self.DAPPY.set_primary_color(c)
+            self.primary.set_color(c)
+            c = RGBAColor(1, 1, 1, 1)
+            self.DAPPY.set_secondary_color(c)
+            self.secondary.set_color(c)
+            self.DAPPY.canvas.clear_overlay()
+            self.DAPPY.canvas.delete()
+            self.DAPPY.canvas.clear_undo_buffer()
+            self.DAPPY.filename = None
+            self.DAPPY.canvas.modified=False
 
     def open(self, widget):
         info = self.DAPPY.FileHandler.open(self.DAPPY.path)

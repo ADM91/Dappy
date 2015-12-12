@@ -306,6 +306,13 @@ class Canvas(gtk.DrawingArea):
                 self.UNDO_BUFFER.n_buf_full += 1
             self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
 
+    def clear_undo_buffer(self):
+        self.emit("change_sensitivty", senstivity_data('undo',False))
+        self.emit("change_sensitivty", senstivity_data('redo',False))
+        self.UNDO_BUFFER.cur_buf = 0
+        self.UNDO_BUFFER.n_buf_full = 0
+        self.UNDO_BUFFER.redos_allowed = 0
+
     def copy(self,cut):
         data = self.surface.get_data()
         t_data=list(data)
