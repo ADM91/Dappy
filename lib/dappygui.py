@@ -255,15 +255,11 @@ class GUI():
 
     def set_sensitivity(self,widget,event):
         if event.action == "undo":
-            ub = self.builder.get_object("undo-button")
-            ub.set_sensitive(event.sensitive)
-            um = self.builder.get_object("menu-undo")
-            um.set_sensitive(event.sensitive)
+            self.builder.get_object("undo-button").set_sensitive(event.sensitive)
+            self.builder.get_object("menu-undo").set_sensitive(event.sensitive)
         elif event.action == "redo":
-            rb = self.builder.get_object("redo-button")
-            rb.set_sensitive(event.sensitive)
-            rm = self.builder.get_object("menu-redo")
-            rm.set_sensitive(event.sensitive)
+            self.builder.get_object("redo-button").set_sensitive(event.sensitive)
+            self.builder.get_object("menu-redo").set_sensitive(event.sensitive)
         elif event.action =="crop":
             self.builder.get_object("crop-button").set_sensitive(event.sensitive)
         else:
@@ -306,7 +302,16 @@ class GUI():
                 self.DAPPY.canvas.fig_fill_type=2
 
     def new(self, widget):
-        print "new"
+        self.builder.get_object("primary-color-alpha").set_value(self.MAX_ALPHA_1)
+        self.builder.get_object("secondary-color-alpha").set_value(self.MAX_ALPHA_2)
+        c = RGBAColor(0, 0, 0, 1)
+        self.DAPPY.set_secondary_color(c)
+        self.secondary.set_color(c)
+        c = RGBAColor(1, 1, 1, 1)
+        self.DAPPY.set_secondary_color(c)
+        self.secondary.set_color(c)
+        self.DAPPY.canvas.clear_overlay()
+        self.DAPPY.canvas.delete()
 
     def open(self, widget):
         info = self.DAPPY.FileHandler.open(self.DAPPY.path)
@@ -340,7 +345,7 @@ class GUI():
         self.DAPPY.canvas.undo()
 
     def delete(self, widget):
-        print "delete"
+        self.DAPPY.canvas.delete()
 
     def crop(self,widget):
         self.DAPPY.canvas.crop()

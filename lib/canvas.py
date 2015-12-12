@@ -314,7 +314,6 @@ class Canvas(gtk.DrawingArea):
         s = self.surface.get_stride()
         w = self.surface.get_width()
         h = self.surface.get_height()
-
         if self.select_active:
             xp= [min(max(0,x),w) for x in self.select_xp]
             yp= [min(max(0,y),h) for y in self.select_yp]
@@ -331,46 +330,61 @@ class Canvas(gtk.DrawingArea):
                 PixBuf =  gtk.gdk.pixbuf_new_from_data(c_data,gtk.gdk.COLORSPACE_RGB, True, 8, c_w,c_h,c_s)
                 self.clipboard.set_image(PixBuf)
                 if cut:
-                    self.update_undo_buffer(1)
-                    aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, c_w, c_h)
-                    context  = cairo.Context(aux)
-                    context.rectangle(0, 0, self.width, self.height)
-                    context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
-                    context.fill()
-                    mask = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-                    context  = cairo.Context(mask)
-                    context.rectangle(0, 0, self.width, self.height)
-                    context.set_source_rgba(1,1,1,0)
-                    context.fill()
-                    context.rectangle(c_x, c_y, c_w, c_h)
-                    context.set_source_rgba(1,1,1,1)
-                    context.fill()
-                    context = cairo.Context(self.surface)
-                    context.set_source_surface(aux, c_x, c_y)
-                    context.set_operator(cairo.OPERATOR_SOURCE)
-                    context.mask(cairo.SurfacePattern(mask))
-                    self.swap_buffers()
-
+                    self.delete()
         else:
             t_data = ''.join(t_data)
             PixBuf =  gtk.gdk.pixbuf_new_from_data(t_data,gtk.gdk.COLORSPACE_RGB, True, 8, w,h,s)
             self.clipboard.set_image(PixBuf)
             if cut:
+                self.delete()
+
+    def delete(self):
+        w = self.surface.get_width()
+        h = self.surface.get_height()
+        if self.select_active:
+            xp= [min(max(0,x),w) for x in self.select_xp]
+            yp= [min(max(0,y),h) for y in self.select_yp]
+            c_w= int(max(xp)-min(xp))
+            c_h= int(max(yp)-min(yp))
+            if c_h>0 and c_w>0:
+                c_y = int(min(yp))
+                c_x = int(min(xp))
                 self.update_undo_buffer(1)
-                context  = cairo.Context(self.surface)
+                aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, c_w, c_h)
+                context  = cairo.Context(aux)
                 context.rectangle(0, 0, self.width, self.height)
                 context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
-                context.set_operator(cairo.OPERATOR_SOURCE)
                 context.fill()
-                #if the context is filled blank the pixels wont edit properly for bucket fill
-                #The hacky solution is to copy the black pixels to a temporary array
-                #Paint new pixels, and then copy the blank ones back in.
-                if self.bg_col[3] == 0:
-                    t_data = data[:]
-                    context = cairo.Context(self.surface)
-                    context.paint()
-                    data[:] = t_data[:]
+                mask = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+                context  = cairo.Context(mask)
+                context.rectangle(0, 0, self.width, self.height)
+                context.set_source_rgba(1,1,1,0)
+                context.fill()
+                context.rectangle(c_x, c_y, c_w, c_h)
+                context.set_source_rgba(1,1,1,1)
+                context.fill()
+                context = cairo.Context(self.surface)
+                context.set_source_surface(aux, c_x, c_y)
+                context.set_operator(cairo.OPERATOR_SOURCE)
+                context.mask(cairo.SurfacePattern(mask))
                 self.swap_buffers()
+        else:
+            data = self.surface.get_data()
+            self.update_undo_buffer(1)
+            context  = cairo.Context(self.surface)
+            context.rectangle(0, 0, self.width, self.height)
+            context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+            context.set_operator(cairo.OPERATOR_SOURCE)
+            context.fill()
+            #if the context is filled blank the pixels wont edit properly for bucket fill
+            #The hacky solution is to copy the black pixels to a temporary array
+            #Paint new pixels, and then copy the blank ones back in.
+            if self.bg_col[3] == 0:
+                t_data = data[:]
+                context = cairo.Context(self.surface)
+                context.paint()
+                data[:] = t_data[:]
+            self.swap_buffers()
 
 
     def paste(self):
