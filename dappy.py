@@ -33,29 +33,23 @@ _ = gettext.gettext
 
 class Dappy():
     canvas = None
-    READWRITE = None
-
 
     filename = None
     path = None
-
+    FileHandler = None
     primary = None
     secondary = None
 
-    Tools = None
-    picker = None
 
     def __init__(self, path, image_filename=None):
 
         # Initialize canvas
         self.canvas = FancyCanvas()
-
-        # Initialize readers/writers
-        self.READWRITE = ImageFile()
+        self.FileHandler = FileIO()
 
         # Load image information
         if image_filename != None:
-            info = self.READWRITE.read(os.path.abspath(image_filename))
+            info = self.FileHandler.read(os.path.abspath(image_filename))
             self.set_current_info(info)
         else:
             self.filename = None
@@ -135,7 +129,7 @@ if __name__ == "__main__":
     sys.path.insert(0, 'lib')
     from dappygui import GUI
     from canvas import FancyCanvas
-    from file_io import ImageFile
+    from file_io import FileIO
     from colors import RGBAColor
     import tools
     app = Dappy(default_path, filename)

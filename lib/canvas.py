@@ -80,7 +80,7 @@ class Canvas(gtk.DrawingArea):
         self.figure_corner_radius=0
         self.airbrush_width=0
 
-        self.select_active = False
+        self.set_selection(False)
         self.select_xp = None
         self.select_yp = None
 
@@ -220,7 +220,12 @@ class Canvas(gtk.DrawingArea):
         context.fill()
         #set as overlay
         self.overlay = tmp_surf
-        self.select_active = False
+        self.set_selection(False)
+
+    def set_selection(self,value):
+        if self.select_active != value:
+            self.select_active = value
+            self.emit("change_sensitivty", senstivity_data('crop',value))
 
     def get_image(self):
         return self.surface
@@ -396,6 +401,26 @@ class Canvas(gtk.DrawingArea):
             context.set_source_surface(aux, 0, 0)
             context.paint()
             self.swap_buffers()
+
+    def crop(self):
+        if self.select_active:
+            self.update_undo_buffer(1)
+            w = self.surface.get_width()
+            h = self.surface.get_height()
+            xp= [min(max(0,x),w) for x in self.select_xp]
+            yp= [min(max(0,y),h) for y in self.select_yp]
+            c_w= int(max(xp))-int(min(xp))
+            c_h= int(max(yp))-int(min(yp))
+            aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, w,h)
+            context = cairo.Context(aux)
+            context.set_source_surface(self.surface,0,0)
+            context.paint()
+            context = cairo.Context(self.surface)
+            context.set_source_surface(aux,-int(min(xp)),-int(min(yp)))
+            context.paint()
+            self.set_size(c_w,c_h)
+            self.clear_overlay()
+            self.print_tool()
 
     def is_modified(self):
         return self.modified

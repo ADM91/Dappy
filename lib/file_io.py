@@ -26,7 +26,7 @@ import cairo
 
 _ = gettext.gettext
 
-class ImageFile:
+class FileIO:
 
     def __init__(self):
         png = PNGReaderWriter()

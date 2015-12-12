@@ -556,6 +556,7 @@
                 <property name="label" translatable="yes">toolbutton1</property>
                 <property name="use_underline">True</property>
                 <property name="icon_widget">crop-icon</property>
+                <signal name="clicked" handler="crop" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -264,6 +264,8 @@ class GUI():
             rb.set_sensitive(event.sensitive)
             rm = self.builder.get_object("menu-redo")
             rm.set_sensitive(event.sensitive)
+        elif event.action =="crop":
+            self.builder.get_object("crop-button").set_sensitive(event.sensitive)
         else:
             print('Button %s unknown')%event.action
 
@@ -307,15 +309,15 @@ class GUI():
         print "new"
 
     def open(self, widget):
-        info = self.DAPPY.READWRITE.open(self.DAPPY.path)
+        info = self.DAPPY.FileHandler.open(self.DAPPY.path)
         self.DAPPY.set_current_info(info)
 
     def save(self, widget):
-        canonical_filename = self.DAPPY.READWRITE.save(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
+        canonical_filename = self.DAPPY.FileHandler.save(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
         self.DAPPY.fix_image_info(canonical_filename)
 
     def save_as(self, widget):
-        canonical_filename = self.DAPPY.READWRITE.save_as(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
+        canonical_filename = self.DAPPY.FileHandler.save_as(self.DAPPY.canvas.get_image(), self.DAPPY.path, self.DAPPY.filename)
         self.DAPPY.fix_image_info(canonical_filename)
 
     def cut(self, widget):
@@ -339,3 +341,6 @@ class GUI():
 
     def delete(self, widget):
         print "delete"
+
+    def crop(self,widget):
+        self.DAPPY.canvas.crop()
