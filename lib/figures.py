@@ -20,9 +20,9 @@
 
 import cairo
 import math
-from generic import DragAndDropTool
+import tools
 
-class RectangleTool(DragAndDropTool):
+class RectangleTool(tools.DragAndDropTool):
     name = 'Rectangle'
     def draw(self, context):
         if self.mode == self.READY:
@@ -38,7 +38,7 @@ class RectangleTool(DragAndDropTool):
         context.stroke()
 
 
-class RoundedRectangleTool(DragAndDropTool):
+class RoundedRectangleTool(tools.DragAndDropTool):
     name = 'RoundedRectangle'
     def draw(self, context):
         if self.mode == self.READY:
@@ -87,7 +87,7 @@ class RoundedRectangleTool(DragAndDropTool):
             context.arc_negative(x,y,R,a1,a)
         return a
 
-class EllipseTool(DragAndDropTool):
+class EllipseTool(tools.DragAndDropTool):
     name = 'Ellipse'
     def draw(self, context):
         if self.mode == self.READY:
@@ -117,7 +117,7 @@ class EllipseTool(DragAndDropTool):
         context.set_line_width(self.canvas.figure_linewidth)
         context.stroke()
 
-class RectangleSelectTool(DragAndDropTool):
+class RectangleSelectTool(tools.DragAndDropTool):
     name = 'RectSelect'
     Draw2Overlay = True
 

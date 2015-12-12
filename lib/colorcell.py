@@ -21,7 +21,6 @@
 import gtk
 import cairo
 import gobject
-import math
 
 from rgbacolor import RGBAColor
 

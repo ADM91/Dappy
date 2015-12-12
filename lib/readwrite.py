@@ -22,8 +22,6 @@ import cairo
 import gettext
 import gtk
 
-from lib.graphics.canvas import Canvas
-
 _ = gettext.gettext
 
 class ReaderWriter:

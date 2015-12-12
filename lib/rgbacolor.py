@@ -19,7 +19,7 @@
 
 
 import gtk
-from lib.misc.utils import Callable
+import utils 
 
 class RGBAColor:
 
@@ -99,9 +99,9 @@ class RGBAColor:
         blue = int(string[9:13], 16) / 65535.0
 
         return RGBAColor(red, green, blue)
-    create_from_gtk_color = Callable(create_from_gtk_color)
+    create_from_gtk_color = utils.Callable(create_from_gtk_color)
 
 
     def color_parse(color):
         return RGBAColor.create_from_gtk_color(gtk.gdk.color_parse(color))
-    color_parse = Callable(color_parse)
+    color_parse = utils.Callable(color_parse)

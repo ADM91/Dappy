@@ -19,8 +19,7 @@
 
 
 import gtk
-from lib.graphics.rgbacolor import RGBAColor
-from ctypes import create_string_buffer
+from rgbacolor import RGBAColor
 
 # Class
 # ==============================================================================

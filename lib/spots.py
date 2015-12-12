@@ -19,15 +19,13 @@
 
 
 import struct
-import gobject
 from ctypes import create_string_buffer
 
 
-from generic import Tool
-from generic import DragAndDropTool
+import tools
 
 
-class ColorPickerTool(DragAndDropTool):
+class ColorPickerTool(tools.DragAndDropTool):
     name = 'ColorPicker';
     pixels = None;
     data = None;
@@ -64,11 +62,11 @@ class ColorPickerTool(DragAndDropTool):
                 col_int = struct.unpack_from(str(self.bpp)+'B',col_bin)
                 self.col = [float(i)/255 for i in col_int]
 
-class BucketFillTool(Tool):
+class BucketFillTool(tools.Tool):
     name = 'BucketFill';
     def begin(self, x, y,button):
         
-        Tool.begin(self, x, y,button)
+        tools.Tool.begin(self, x, y,button)
         self.mode = self.DRAWING
         surface = self.canvas.get_image()
 

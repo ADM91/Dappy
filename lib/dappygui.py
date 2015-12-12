@@ -23,11 +23,10 @@
 # Import packages
 import gtk
 import gettext
-import os
 
-from lib.misc.hsvgenerator import HSVGenerator
-from lib.graphics.colorcell import ColorCell
-from lib.graphics.rgbacolor import RGBAColor
+from hsvgenerator import HSVGenerator
+from colorcell import ColorCell
+from rgbacolor import RGBAColor
 
 _ = gettext.gettext
 

@@ -19,16 +19,16 @@
 
 
 import cairo
-from generic import DragAndDropTool
+import tools
 import struct
 from ctypes import create_string_buffer
 
-class PencilTool(DragAndDropTool):
+class PencilTool(tools.DragAndDropTool):
     points = None
     name = 'Pencil'
 
     def begin(self, x, y,button):
-        DragAndDropTool.begin(self, x, y,button)
+        tools.DragAndDropTool.begin(self, x, y,button)
         self.points = list()
         self.points.insert(len(self.points), (x, y))
 

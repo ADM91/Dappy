@@ -20,9 +20,9 @@
 import cairo
 import gtk
 import gobject
+from ctypes import create_string_buffer
 
-
-from lib.tools.generic import *
+import tools
 from rgbacolor import RGBAColor
 
 class undoBuffer: 
@@ -95,7 +95,7 @@ class Canvas(gtk.DrawingArea):
         self.modified = False
         
         # Basic tools
-        self.DUMMY_TOOL = Tool(self)
+        self.DUMMY_TOOL = tools.Tool(self)
         self.active_tool = self.DUMMY_TOOL
 
         # Surface is the image in the canvas

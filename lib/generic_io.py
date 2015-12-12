@@ -18,21 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-import cairo
 import gtk
 import os
 import gettext
 import imghdr
 
-from readwrite import PNGReaderWriter
-from readwrite import JPEGReaderWriter
+import readwrite
 
 _ = gettext.gettext
 
 class ImageFile:
 
     def __init__(self):
-        png = PNGReaderWriter()
+        png = readwrite.PNGReaderWriter()
 
         self.TOOLS_BY_FILTER = { png.get_filter() : png }
         self.TOOLS_BY_IMGTYPE = { png.get_imgtype() : png }

@@ -27,14 +27,7 @@ import gettext
 import os
 import sys
 
-from lib.gui.dappygui import GUI
-from lib.graphics.fancycanvas import FancyCanvas
-from lib.io.generic import ImageFile
-from lib.tools.figures import *
-from lib.tools.free import *
-from lib.tools.generic import *
-from lib.tools.lines import *
-from lib.tools.spots import *
+
 
 _ = gettext.gettext
 
@@ -74,17 +67,17 @@ class Dappy():
         self.canvas.bg_col = self.secondary.get_rgba()
 
         # Defining tools
-        self.TOOLS = {"draw-rounded-rectangle" : RoundedRectangleTool(self.canvas),
-                      "draw-rectangle"  : RectangleTool(self.canvas),
-                      "straight-line"   : StraightLineTool(self.canvas),
-                      "pencil"          : PencilTool(self.canvas),
-                      "paintbrush"      : PaintbrushTool(self.canvas),
-                      "bucket-fill"     : BucketFillTool(self.canvas),
-                      "eraser"          : EraserTool(self.canvas),
-                      "draw-ellipse"    : EllipseTool(self.canvas), 
-                      "color-picker"    : ColorPickerTool(self.canvas),
-                      "rect-select"     : RectangleSelectTool(self.canvas),
-                      "airbrush"        : AirBrushTool(self.canvas)}
+        self.TOOLS = {"draw-rounded-rectangle" : figures.RoundedRectangleTool(self.canvas),
+                      "draw-rectangle"  : figures.RectangleTool(self.canvas),
+                      "straight-line"   : lines.StraightLineTool(self.canvas),
+                      "pencil"          : free.PencilTool(self.canvas),
+                      "paintbrush"      : free.PaintbrushTool(self.canvas),
+                      "bucket-fill"     : spots.BucketFillTool(self.canvas),
+                      "eraser"          : free.EraserTool(self.canvas),
+                      "draw-ellipse"    : figures.EllipseTool(self.canvas), 
+                      "color-picker"    : spots.ColorPickerTool(self.canvas),
+                      "rect-select"     : figures.RectangleSelectTool(self.canvas),
+                      "airbrush"        : free.AirBrushTool(self.canvas)}
 
         self.canvas.clear_overlay()
         self.canvas.print_tool()
@@ -139,7 +132,15 @@ if __name__ == "__main__":
     
     default_path = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
+    sys.path.insert(0, 'lib')
+    from dappygui import GUI
+    from fancycanvas import FancyCanvas
+    from generic_io import ImageFile
+    from rgbacolor import RGBAColor
+    import figures
+    import free
+    import lines
+    import spots
     app = Dappy(default_path, filename)
     gui = GUI(app)
 

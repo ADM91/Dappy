@@ -22,7 +22,7 @@ import cairo
 import Image
 from array import array
 
-from lib.misc.utils import Callable
+from utils import Callable
 
 class ImageUtils:
     COLORMODE_RGBA = 0
@@ -32,7 +32,6 @@ class ImageUtils:
         data = surface.get_data()
         w = surface.get_width()
         h = surface.get_height()
-        s = surface.get_stride()
 
         image = Image.frombuffer('RGBA', (w, h), data, 'raw', 'RGBA', 0, 1).copy()
         if colormode == ImageUtils.COLORMODE_RGBA:

@@ -18,11 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-import cairo
-import math
-from generic import DragAndDropTool
+import tools
 
-class StraightLineTool(DragAndDropTool):
+class StraightLineTool(tools.DragAndDropTool):
     name = 'StraightLine';
     def draw(self, context):
         if self.mode == self.READY:

@@ -22,8 +22,7 @@ import cairo
 import gtk
 import math
 from canvas import Canvas
-from lib.tools.generic import *
-from lib.tools.figures import *
+import tools
 
 class FancyCanvas(Canvas):
     MARGIN = 0
@@ -51,9 +50,9 @@ class FancyCanvas(Canvas):
         self.DECORATIONS_COLOR = aux.get_style().bg[gtk.STATE_SELECTED]
 
         # Basic Tools
-        self.CANVAS_B_SCALER = BothScalingTool(self)
-        self.CANVAS_H_SCALER = HorizontalScalingTool(self)
-        self.CANVAS_V_SCALER = VerticalScalingTool(self)
+        self.CANVAS_B_SCALER = tools.BothScalingTool(self)
+        self.CANVAS_H_SCALER = tools.HorizontalScalingTool(self)
+        self.CANVAS_V_SCALER = tools.VerticalScalingTool(self)
 
         # Useful constants
         self.RIGHT_SCALING_POINT = 0
