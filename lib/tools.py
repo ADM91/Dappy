@@ -33,14 +33,22 @@ class Tool(gtk.Object):
     EDITING = 2
     name = 'NotSet'
     Draw2Overlay = False
-
-    CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
+    CURSOR = None
 
     def __init__(self, canvas):
         self.canvas = canvas
         self.primary = RGBAColor(0, 0, 0)
         self.secondary = RGBAColor(1, 1, 1)
         self.mode = self.READY
+        self.set_cursor()
+
+    def set_cursor(self):
+        self.CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
+
+    def set_cursor_from_file(self,name,x,y):
+        px_buf = gtk.gdk.pixbuf_new_from_file(name)
+        pm = gtk.gdk.Pixmap(None,1,1,1)
+        self.CURSOR=gtk.gdk.Cursor(pm.get_display(),px_buf,x,y)
 
     def move(self, x, y): pass
 
@@ -99,14 +107,16 @@ class Tool(gtk.Object):
 # Class
 # ==============================================================================
 class DragAndDropTool(Tool):
-    CURSOR = gtk.gdk.Cursor(gtk.gdk.CROSSHAIR)
+    CURSOR = None
 
     initial_x = 0
     initial_y = 0
     final_x = 0
     final_y = 0
-
     m_button = None
+
+    def set_cursor(self):
+        self.CURSOR = gtk.gdk.Cursor(gtk.gdk.CROSSHAIR)
 
     def begin(self, x, y,button):
         Tool.begin(self, x, y,button)
@@ -131,8 +141,11 @@ class DragAndDropTool(Tool):
 # Class
 # ==============================================================================
 class BothScalingTool(Tool):
-    CURSOR = gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER)
+    CURSOR = None
     name = 'BothScale'
+
+    def set_cursor(self):
+        self.CURSOR = gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER)
 
     def begin(self, x, y,button):
         Tool.begin(self, x, y,button)
@@ -144,11 +157,14 @@ class BothScalingTool(Tool):
 # Class
 # ==============================================================================
 class HorizontalScalingTool(Tool):
-    CURSOR = gtk.gdk.Cursor(gtk.gdk.RIGHT_SIDE)
+    CURSOR = None
     name = 'HorScale'
 
     def begin(self, x, y,button):
         Tool.begin(self, x, y,button)
+
+    def set_cursor(self):
+        self.CURSOR = gtk.gdk.Cursor(gtk.gdk.RIGHT_SIDE)
 
     def move(self, x, y):
         self.canvas.set_size(int(x), self.canvas.get_height())
@@ -157,8 +173,11 @@ class HorizontalScalingTool(Tool):
 # Class
 # ==============================================================================
 class VerticalScalingTool(Tool):
-    CURSOR = gtk.gdk.Cursor(gtk.gdk.BOTTOM_SIDE)
+    CURSOR = None
     name = 'VertScale'
+
+    def set_cursor(self):
+        self.CURSOR = gtk.gdk.Cursor(gtk.gdk.BOTTOM_SIDE)
 
     def begin(self, x, y,button):
         Tool.begin(self, x, y,button)
@@ -174,6 +193,9 @@ class ColorPickerTool(DragAndDropTool):
     w = None;
     s = None;
     col = None;
+
+    def set_cursor(self):
+        self.set_cursor_from_file('Cursors/cursor-color-picker.png',1,30)
 
     def begin(self, x, y,button):
         self.mode = self.DRAWING
@@ -203,6 +225,10 @@ class ColorPickerTool(DragAndDropTool):
 
 class BucketFillTool(Tool):
     name = 'BucketFill';
+
+    def set_cursor(self):
+        self.set_cursor_from_file('Cursors/cursor-bucket-fill.png',1,35)
+
     def begin(self, x, y,button):
         Tool.begin(self, x, y,button)
         self.mode = self.DRAWING
@@ -251,6 +277,9 @@ class PencilTool(DragAndDropTool):
     points = None
     name = 'Pencil'
 
+    def set_cursor(self):
+        self.CURSOR = gtk.gdk.Cursor(gtk.gdk.PENCIL)
+
     def begin(self, x, y,button):
         DragAndDropTool.begin(self, x, y,button)
         self.points = list()
@@ -283,6 +312,15 @@ class PencilTool(DragAndDropTool):
 class EraserTool(PencilTool):
     name = 'Eraser'
 
+    def set_cursor(self):
+        pm = gtk.gdk.Pixmap(None,10,10,1)
+        bg = pm.new_gc(foreground=gtk.gdk.colormap_get_system().alloc_color('black'))
+        fg = pm.new_gc(foreground=gtk.gdk.colormap_get_system().alloc_color('white'))
+        pm.draw_rectangle(bg,True,0,0,10,10)
+        pm.draw_rectangle(fg,False,0,0,9,9)
+        self.CURSOR=gtk.gdk.Cursor(pm,pm,gtk.gdk.Color(),gtk.gdk.Color(),5,5)
+
+
     def begin(self, x, y,button):
         super(EraserTool, self).begin(x, y,button)
         #start line
@@ -307,6 +345,10 @@ class EraserTool(PencilTool):
 
 class PaintbrushTool(PencilTool):
     name = 'PaintBrush'
+
+    def set_cursor(self):
+        self.set_cursor_from_file('Cursors/cursor-paintbrush.png',18,35)
+
     def draw(self, context):
         if self.mode == self.READY:
             return
@@ -327,6 +369,8 @@ class AirBrushTool(PencilTool):
     Brush_rep = None
     scale = None
 
+    def set_cursor(self):
+        self.set_cursor_from_file('Cursors/cursor-airbrush.png',20,35)
 
     def begin(self, x, y,button):
         super(AirBrushTool, self).begin(x, y,button)

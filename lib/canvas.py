@@ -52,7 +52,7 @@ class Canvas(gtk.DrawingArea):
     picker_col = None
     bg_init=None
     bg_col = None
-    UNDO_BUFFER = undoBuffer()
+    UNDO_BUFFER = None
     select_active = None
     modified = None
     fig_fill_type = None
@@ -68,6 +68,8 @@ class Canvas(gtk.DrawingArea):
         self.connect("motion-notify-event", self.move_event)
         self.connect("expose-event", self.expose)
         self.connect("motion-notify-event", self.motion_event)
+
+        self.UNDO_BUFFER = undoBuffer()
 
         self.set_size(550, 412)
         self.ALPHA_PATTERN = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("GUI/alpha-pattern.png"))
