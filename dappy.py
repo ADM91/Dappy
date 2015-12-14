@@ -44,7 +44,7 @@ class Dappy():
     def __init__(self, path, image_filename=None):
 
         # Initialize canvas
-        self.canvas = FancyCanvas()
+        self.canvas = Canvas()
         self.FileHandler = FileIO()
 
         # Load image information
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     sys.path.insert(0, 'lib')
     from dappygui import GUI
-    from canvas import FancyCanvas
+    from canvas import Canvas
     from file_io import FileIO
     from colors import RGBAColor
     import tools

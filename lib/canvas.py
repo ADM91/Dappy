@@ -56,11 +56,16 @@ class Canvas(gtk.DrawingArea):
     select_active = None
     modified = None
     fig_fill_type = None
+    MARGIN = None
+    RSS = None
 
     def __init__(self):
         # Initializing gtk.DrawingArea superclass
         super(Canvas, self).__init__()
-
+        # Resize Square Size
+        self.RSS = 5
+        # Margin (to draw shadows and resize squares)
+        self.MARGIN = 20
         # Registering events
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.BUTTON1_MOTION_MASK | gtk.gdk.DRAG_MOTION | gtk.gdk.POINTER_MOTION_MASK)
         self.connect("button-press-event", self.button_pressed)
@@ -103,10 +108,37 @@ class Canvas(gtk.DrawingArea):
         self.clipboard = gtk.clipboard_get(selection="CLIPBOARD")
 
 
-    def set_size(self, width, height): #Not called by fancycanvas objects!
+        # Shadows to distribute around canvas (makes it more cute!)
+        str = "GUI/bl-corner-shadow.png"
+        self.BL_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
+        str = "GUI/tr-corner-shadow.png"
+        self.TR_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
+        self.side_alpha_channels = [0.4, 0.39, 0.37, 0.32, 0.24, 0.16, 0.08, 0.04, 0.01]
+
+        # Detecting decorations' color
+        aux = gtk.Window()
+        aux.realize()
+        self.DECORATIONS_COLOR = aux.get_style().bg[gtk.STATE_SELECTED]
+
+        # Basic Tools
+        self.CANVAS_B_SCALER = tools.BothScalingTool(self)
+        self.CANVAS_H_SCALER = tools.HorizontalScalingTool(self)
+        self.CANVAS_V_SCALER = tools.VerticalScalingTool(self)
+
+        # Useful constants
+        self.CORNER_SCALING_POINT = 1
+        self.RIGHT_SCALING_POINT = 2
+        self.BOTTOM_SCALING_POINT = 3
+        self.SCALING_SIDE_POINTS_MIN_SIZE = 20
+
+        # Previous tool (to recover from a rescale)
+        self.previous_tool = self.active_tool
+
+
+    def set_size(self, width, height):
         self.width = max(width, 1)
         self.height = max(height, 1)
-        self.set_size_request(self.width, self.height)
+        self.set_size_request(self.width + self.MARGIN, self.height + self.MARGIN)
 
     def get_width(self):
         return self.width
@@ -121,9 +153,23 @@ class Canvas(gtk.DrawingArea):
 
 
     def button_pressed(self, widget, event):
-        if event.type == gtk.gdk.BUTTON_PRESS:
-            self.active_tool.begin(event.x, event.y,event.button)
-            self.swap_buffers()
+        self.previous_tool = self.active_tool
+        # When the click is outside the canvas, a scaling point might have been
+        # clicked.
+        if event.x >= self.width or event.y >= self.height:
+            sp = self.__over_scaling_point(event)
+            if sp == self.CORNER_SCALING_POINT:
+                self.active_tool = self.CANVAS_B_SCALER
+            elif sp == self.RIGHT_SCALING_POINT:
+                self.active_tool = self.CANVAS_H_SCALER
+            elif sp == self.BOTTOM_SCALING_POINT:
+                self.active_tool = self.CANVAS_V_SCALER
+            else:
+                self.active_tool = self.DUMMY_TOOL
+        if self.active_tool.name != 'NotSet':
+            if event.type == gtk.gdk.BUTTON_PRESS:
+                self.active_tool.begin(event.x, event.y,event.button)
+                self.swap_buffers()
 
     def button_released(self, widget, event):
         self.active_tool.end(event.x, event.y)
@@ -133,8 +179,8 @@ class Canvas(gtk.DrawingArea):
             col = self.active_tool.col
             self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
             self.emit("color_pick_event", event)
+        self.active_tool = self.previous_tool
 
-    #always runs when mouse moves
     def move_event(self, widget, event):
         self.active_tool.move(event.x, event.y)
         if self.active_tool.name == "ColorPicker" and  self.active_tool.mode == self.active_tool.DRAWING:
@@ -144,11 +190,20 @@ class Canvas(gtk.DrawingArea):
         else:
             self.swap_buffers()
 
-    #captured by fancy canvas and only run if not over scaling point.
     def motion_event(self, widget, event):
-        self.active_tool.select()
-        if event.x > self.width or event.y > self.height:
-            self.window.set_cursor(self.DEFAULT_CURSOR)
+        if self.active_tool.mode != self.active_tool.DRAWING:
+            sp = self.__over_scaling_point(event)
+            if sp != 0:
+                if sp == self.CORNER_SCALING_POINT:
+                    self.CANVAS_B_SCALER.select()
+                elif sp == self.RIGHT_SCALING_POINT:
+                    self.CANVAS_H_SCALER.select()
+                elif sp == self.BOTTOM_SCALING_POINT:
+                    self.CANVAS_V_SCALER.select()
+            else:
+                self.active_tool.select()
+                if event.x > self.width or event.y > self.height:
+                    self.window.set_cursor(self.DEFAULT_CURSOR)
 
 
     def swap_buffers(self):
@@ -177,6 +232,12 @@ class Canvas(gtk.DrawingArea):
         #overlay
         wincontext.set_source_surface(self.overlay)
         wincontext.paint()
+        # Retrieving cairo context
+        context = widget.window.cairo_create()
+        # Modify clipping area to draw decorations outside the canvas
+        # Draw decorations
+        self.__draw_shadows(context)
+        self.__draw_scaling_points(context)
 
     def print_tool(self):
         self.clear_overlay()
@@ -448,113 +509,6 @@ class Canvas(gtk.DrawingArea):
     def is_modified(self):
         return self.modified
 
-class FancyCanvas(Canvas):
-    MARGIN = 0
-    RSS = 0
-
-    def __init__(self):
-        # Initializing Canvas superclass
-        super(FancyCanvas, self).__init__()
-
-        # Resize Square Size
-        self.RSS = 5
-        # Margin (to draw shadows and resize squares)
-        self.MARGIN = 20
-
-        # Shadows to distribute around canvas (makes it more cute!)
-        str = "GUI/bl-corner-shadow.png"
-        self.BL_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
-        str = "GUI/tr-corner-shadow.png"
-        self.TR_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
-        self.side_alpha_channels = [0.4, 0.39, 0.37, 0.32, 0.24, 0.16, 0.08, 0.04, 0.01]
-
-        # Detecting decorations' color
-        aux = gtk.Window()
-        aux.realize()
-        self.DECORATIONS_COLOR = aux.get_style().bg[gtk.STATE_SELECTED]
-
-        # Basic Tools
-        self.CANVAS_B_SCALER = tools.BothScalingTool(self)
-        self.CANVAS_H_SCALER = tools.HorizontalScalingTool(self)
-        self.CANVAS_V_SCALER = tools.VerticalScalingTool(self)
-
-        # Useful constants
-        self.CORNER_SCALING_POINT = 1
-        self.RIGHT_SCALING_POINT = 2
-        self.BOTTOM_SCALING_POINT = 3
-        self.SCALING_SIDE_POINTS_MIN_SIZE = 20
-
-        # Previous tool (to recover from a rescale)
-        self.previous_tool = self.active_tool
-
-
-    def set_size(self, width, height):
-        self.width = max(width, 1)
-        self.height = max(height, 1)
-        self.set_size_request(self.width + self.MARGIN, self.height + self.MARGIN)
-
-
-    def expose(self, widget, event):
-        super(FancyCanvas, self).expose(widget, event)
-        # Retrieving cairo context
-        context = widget.window.cairo_create()
-        # Modify clipping area to draw decorations outside the canvas
-        # Draw decorations
-        self.__draw_shadows(context)
-        self.__draw_scaling_points(context)
-
-    def button_pressed(self, widget, event):
-        self.previous_tool = self.active_tool
-        # When the click is outside the canvas, a scaling point might have been
-        # clicked.
-        if event.x >= self.width or event.y >= self.height:
-            sp = self.__over_scaling_point(event)
-            if sp != 0:
-                if sp == self.CORNER_SCALING_POINT:
-                    self.active_tool = self.CANVAS_B_SCALER
-                elif sp == self.RIGHT_SCALING_POINT:
-                    self.active_tool = self.CANVAS_H_SCALER
-                elif sp == self.BOTTOM_SCALING_POINT:
-                    self.active_tool = self.CANVAS_V_SCALER
-                else:
-                    self.active_tool = self.DUMMY_TOOL
-            if self.active_tool.name != 'NotSet':
-                super(FancyCanvas, self).button_pressed(widget, event)
-        else:
-            super(FancyCanvas, self).button_pressed(widget, event)
-
-    def __over_scaling_point(self, event):
-        if self.width < event.x < self.width + self.RSS + 2:
-            if self.height-2 < event.y < self.height + self.RSS + 3:
-                return self.CORNER_SCALING_POINT
-        if self.width < event.x < self.width + self.RSS + 2:
-            if self.height/2 - 2 < event.y < self.height/2 + self.RSS + 3:
-                return self.RIGHT_SCALING_POINT
-        if self.width/2-2 < event.x < self.width/2 + self.RSS + 2:
-            if self.height < event.y < self.height + self.RSS + 3:
-                return self.BOTTOM_SCALING_POINT
-        return 0
-
-    def button_released(self, widget, event):
-        super(FancyCanvas, self).button_released(widget, event)
-        self.active_tool = self.previous_tool
-
-
-    def motion_event(self, widget, event):
-        if self.active_tool.mode != self.active_tool.DRAWING:
-            sp = self.__over_scaling_point(event)
-            if sp != 0:
-                if sp == self.CORNER_SCALING_POINT:
-                    self.CANVAS_B_SCALER.select()
-                elif sp == self.RIGHT_SCALING_POINT:
-                    self.CANVAS_H_SCALER.select()
-                elif sp == self.BOTTOM_SCALING_POINT:
-                    self.CANVAS_V_SCALER.select()
-            else:
-                super(FancyCanvas, self).motion_event(widget, event)
-
-
-
     def __draw_shadows(self, context):
         # Shadow displacements
         disp = 2
@@ -632,6 +586,17 @@ class FancyCanvas(Canvas):
         context.rectangle(x+1, y+1, self.RSS, self.RSS)
         context.fill()
 
+    def __over_scaling_point(self, event):
+        if self.width < event.x < self.width + self.RSS + 2:
+            if self.height-2 < event.y < self.height + self.RSS + 3:
+                return self.CORNER_SCALING_POINT
+        if self.width < event.x < self.width + self.RSS + 2:
+            if self.height/2 - 2 < event.y < self.height/2 + self.RSS + 3:
+                return self.RIGHT_SCALING_POINT
+        if self.width/2-2 < event.x < self.width/2 + self.RSS + 2:
+            if self.height < event.y < self.height + self.RSS + 3:
+                return self.BOTTOM_SCALING_POINT
+        return 0
 
 gobject.signal_new("color_pick_event", Canvas, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
 # change whether GUI icons are enabled
