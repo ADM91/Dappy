@@ -66,11 +66,13 @@ class GUI():
         self.__init_colors(self.builder.get_object("colors-grid"))
 
         # Initialize working colors
-        self.primary = ColorCell(0, 0, 0)
+        self.primary = ColorCell()
+        self.primary.set_color(self.DAPPY.canvas.primary)
         self.primary.connect("color-changed-event", self.color_changed)
         primary_frame = self.builder.get_object("primary-color")
         primary_frame.add(self.primary)
-        self.secondary = ColorCell(1, 1, 1)
+        self.secondary = ColorCell()
+        self.secondary.set_color(self.DAPPY.canvas.secondary)
         self.secondary.connect("color-changed-event", self.color_changed)
         secondary_frame = self.builder.get_object("secondary-color")
         secondary_frame.add(self.secondary)
@@ -78,12 +80,10 @@ class GUI():
         self.swap_cols.connect("button-press-event", self.color_changed)
 
         # Fix alpha sliders
-        a1 = self.builder.get_object("primary-color-alpha")
-        a1.set_value(a1.get_value())
-        self.MAX_ALPHA_1 = a1.get_value()
-        a2 = self.builder.get_object("secondary-color-alpha")
-        a2.set_value(a2.get_value())
-        self.MAX_ALPHA_2 = a2.get_value()
+        self.primary_a_slide = self.builder.get_object("primary-color-alpha")
+        self.primary_a_slide.set_value(self.primary_a_slide.get_value())
+        self.secondary_a_slide = self.builder.get_object("secondary-color-alpha")
+        self.secondary_a_slide.set_value(self.secondary_a_slide.get_value())
 
         #toolbar handels
         self.fig_tb = self.builder.get_object("figure-toolbar")
@@ -155,7 +155,6 @@ class GUI():
                 colorcell.set_color(RGBAColor.create_from_gtk_color(color))
                 color_frame.add(colorcell)
 
-
     def quit(self, window,event=-100):
         q=False
         if self.DAPPY.canvas.is_modified():
@@ -178,20 +177,17 @@ class GUI():
         if widget==self.primary:
             self.primary.modify_color(widget)
             c = widget.get_color()
-            self.DAPPY.set_primary_color(c)
+            self.primary.set_color_vals(c)
         elif widget==self.secondary:
             self.secondary.modify_color(widget)
             c = widget.get_color()
-            self.DAPPY.set_secondary_color(c)
+            self.secondary.set_color_vals(c)
         elif widget==self.swap_cols:
-            cs = self.primary.get_color()
-            cs.set_alpha(self.DAPPY.get_secondary_color().get_alpha())
-            cp = self.secondary.get_color()
-            cp.set_alpha(self.DAPPY.get_primary_color().get_alpha())
-            self.DAPPY.set_primary_color(cp)
-            self.primary.set_color(cp)
-            self.DAPPY.set_secondary_color(cs)
-            self.secondary.set_color(cs)
+            c_temp = self.primary.get_color()
+            self.primary.set_color_vals(self.secondary.get_color())
+            self.primary_a_slide.set_value(self.primary.color.get_alpha())
+            self.secondary.set_color_vals(c_temp)
+            self.secondary_a_slide.set_value(self.secondary.color.get_alpha())
         else:
             c = widget.get_color()
             if event.type==gtk.gdk.MOTION_NOTIFY:
@@ -199,13 +195,11 @@ class GUI():
             else:
                 button = event.button
             if button == 1:
-                c.set_alpha(self.DAPPY.get_primary_color().get_alpha())
-                self.DAPPY.set_primary_color(c)
-                self.primary.set_color(c)
+                c.set_alpha(self.primary_a_slide.get_value())
+                self.primary.set_color_vals(c)
             elif button == 3:
-                c.set_alpha(self.DAPPY.get_secondary_color().get_alpha())
-                self.DAPPY.set_secondary_color(c)
-                self.secondary.set_color(c)
+                c.set_alpha(self.secondary_a_slide.get_value())
+                self.secondary.set_color_vals(c)
 
     def change_tool_gui(self, newtool):
         if not self.block_tool_event:
@@ -226,20 +220,11 @@ class GUI():
                 newtool.set_active(True)
                 self.block_tool_event = False
 
-
-    def change_primary_alpha(self, slider):
-        c = self.DAPPY.get_primary_color()
-        value = slider.get_value()/self.MAX_ALPHA_1
-        c.set_alpha(value)
-        self.DAPPY.set_primary_color(c)
-        self.primary.set_color(c)
-
-    def change_secondary_alpha(self, slider):
-        c = self.DAPPY.get_secondary_color()
-        value = slider.get_value()/self.MAX_ALPHA_2
-        c.set_alpha(value)
-        self.DAPPY.set_secondary_color(c)
-        self.secondary.set_color(c)
+    def change_alpha_slider(self, slider):
+        if slider == self.primary_a_slide:
+            self.primary.set_alpha(slider.get_value())
+        else:
+            self.secondary.set_alpha(slider.get_value())
 
     def change_figure_linewidth(self, widget):
         self.DAPPY.canvas.figure_linewidth= widget.get_value()
@@ -312,14 +297,10 @@ class GUI():
         else:
             n=True
         if n:
-            self.builder.get_object("primary-color-alpha").set_value(self.MAX_ALPHA_1)
-            self.builder.get_object("secondary-color-alpha").set_value(self.MAX_ALPHA_2)
-            c = RGBAColor(0, 0, 0, 1)
-            self.DAPPY.set_primary_color(c)
-            self.primary.set_color(c)
-            c = RGBAColor(1, 1, 1, 1)
-            self.DAPPY.set_secondary_color(c)
-            self.secondary.set_color(c)
+            self.primary_a_slide.set_value(1.0)
+            self.secondary_a_slide.set_value(1.0)
+            self.primary.set_rgba(0, 0, 0, 1)
+            self.secondary.set_rgba(1, 1, 1, 1)
             self.DAPPY.canvas.clear_overlay()
             self.DAPPY.canvas.delete()
             self.DAPPY.canvas.clear_undo_buffer()
@@ -341,14 +322,11 @@ class GUI():
     def cut(self, widget):
         self.DAPPY.canvas.copy(True)
 
-
     def copy(self, widget):
         self.DAPPY.canvas.copy(False)
 
-
     def paste(self, widget):
         self.DAPPY.canvas.paste()
-
 
     def redo(self, widget):
         self.DAPPY.canvas.redo()

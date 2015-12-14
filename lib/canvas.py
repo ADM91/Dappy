@@ -51,13 +51,14 @@ class Canvas(gtk.DrawingArea):
     active_tool = None
     picker_col = None
     bg_init=None
-    bg_col = None
     UNDO_BUFFER = None
     select_active = None
     modified = None
     fig_fill_type = None
     MARGIN = None
     RSS = None
+    primary = None
+    secondary = None
 
     def __init__(self):
         # Initializing gtk.DrawingArea superclass
@@ -70,7 +71,6 @@ class Canvas(gtk.DrawingArea):
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.BUTTON1_MOTION_MASK | gtk.gdk.DRAG_MOTION | gtk.gdk.POINTER_MOTION_MASK)
         self.connect("button-press-event", self.button_pressed)
         self.connect("button-release-event", self.button_released)
-        self.connect("motion-notify-event", self.move_event)
         self.connect("expose-event", self.expose)
         self.connect("motion-notify-event", self.motion_event)
 
@@ -81,7 +81,8 @@ class Canvas(gtk.DrawingArea):
         self.ALPHA_PATTERN.set_extend(cairo.EXTEND_REPEAT)
 
         self.bg_init=0
-        self.bg_col = (1, 1, 1, 1)
+        self.primary = RGBAColor(0, 0, 0, 1)
+        self.secondary = RGBAColor(1, 1, 1, 1)
 
         self.figure_linewidth=0
         self.figure_corner_radius=0
@@ -107,8 +108,7 @@ class Canvas(gtk.DrawingArea):
         #clipboard
         self.clipboard = gtk.clipboard_get(selection="CLIPBOARD")
 
-
-        # Shadows to distribute around canvas (makes it more cute!)
+        # Shadows to distribute around canvas
         str = "GUI/bl-corner-shadow.png"
         self.BL_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
         str = "GUI/tr-corner-shadow.png"
@@ -120,7 +120,7 @@ class Canvas(gtk.DrawingArea):
         aux.realize()
         self.DECORATIONS_COLOR = aux.get_style().bg[gtk.STATE_SELECTED]
 
-        # Basic Tools
+        # Canvas Tools
         self.CANVAS_B_SCALER = tools.BothScalingTool(self)
         self.CANVAS_H_SCALER = tools.HorizontalScalingTool(self)
         self.CANVAS_V_SCALER = tools.VerticalScalingTool(self)
@@ -134,7 +134,6 @@ class Canvas(gtk.DrawingArea):
         # Previous tool (to recover from a rescale)
         self.previous_tool = self.active_tool
 
-
     def set_size(self, width, height):
         self.width = max(width, 1)
         self.height = max(height, 1)
@@ -143,14 +142,11 @@ class Canvas(gtk.DrawingArea):
     def get_width(self):
         return self.width
 
-
     def get_height(self):
         return self.height
 
-
     def set_active_tool(self, tool):
         self.active_tool = tool
-
 
     def button_pressed(self, widget, event):
         self.previous_tool = self.active_tool
@@ -181,15 +177,6 @@ class Canvas(gtk.DrawingArea):
             self.emit("color_pick_event", event)
         self.active_tool = self.previous_tool
 
-    def move_event(self, widget, event):
-        self.active_tool.move(event.x, event.y)
-        if self.active_tool.name == "ColorPicker" and  self.active_tool.mode == self.active_tool.DRAWING:
-            col = self.active_tool.col
-            self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
-            self.emit("color_pick_event", event)
-        else:
-            self.swap_buffers()
-
     def motion_event(self, widget, event):
         if self.active_tool.mode != self.active_tool.DRAWING:
             sp = self.__over_scaling_point(event)
@@ -204,7 +191,13 @@ class Canvas(gtk.DrawingArea):
                 self.active_tool.select()
                 if event.x > self.width or event.y > self.height:
                     self.window.set_cursor(self.DEFAULT_CURSOR)
-
+        else:
+            self.active_tool.move(event.x, event.y)
+            if self.active_tool.name == "ColorPicker":
+                col = self.active_tool.col
+                self.picker_col =  RGBAColor(col[2], col[1], col[0], col[3])
+                self.emit("color_pick_event", event)
+        self.swap_buffers()
 
     def swap_buffers(self):
         rect = gtk.gdk.Rectangle(0, 0, self.width, self.height)
@@ -270,7 +263,7 @@ class Canvas(gtk.DrawingArea):
         else:
             context.rectangle(self.surface.get_width(), 0, self.width-self.surface.get_width(), self.height)
             context.rectangle(0, self.surface.get_height(), self.width, self.height-self.surface.get_height())
-        context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+        context.set_source_rgba(self.secondary.get_red(),self.secondary.get_green(),self.secondary.get_blue(),self.secondary.get_alpha())
         context.fill()
 
     def clear_overlay(self):
@@ -293,11 +286,9 @@ class Canvas(gtk.DrawingArea):
     def get_image(self):
         return self.surface
 
-
     def set_image(self, surface):
         self.surface = surface
         self.set_size(surface.get_width(), surface.get_height())
-
 
     def get_color(self):
         return self.picker_col
@@ -326,7 +317,6 @@ class Canvas(gtk.DrawingArea):
             if self.UNDO_BUFFER.n_buf_full==0:
                 self.emit("change_sensitivty", senstivity_data('undo',False))
 
-
     def redo(self):
         if self.UNDO_BUFFER.redos_allowed>0:
             self.modified=True
@@ -348,7 +338,6 @@ class Canvas(gtk.DrawingArea):
             self.emit("change_sensitivty", senstivity_data('undo',True))
             if self.UNDO_BUFFER.redos_allowed==0:
                 self.emit("change_sensitivty", senstivity_data('redo',False))
-
 
     def update_undo_buffer(self,iterate):
         self.modified=True
@@ -423,7 +412,7 @@ class Canvas(gtk.DrawingArea):
                 aux = cairo.ImageSurface(cairo.FORMAT_ARGB32, c_w, c_h)
                 context  = cairo.Context(aux)
                 context.rectangle(0, 0, self.width, self.height)
-                context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+                context.set_source_rgba(self.secondary.get_red(),self.secondary.get_green(),self.secondary.get_blue(),self.secondary.get_alpha())
                 context.fill()
                 mask = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
                 context  = cairo.Context(mask)
@@ -443,19 +432,18 @@ class Canvas(gtk.DrawingArea):
             self.update_undo_buffer(1)
             context  = cairo.Context(self.surface)
             context.rectangle(0, 0, self.width, self.height)
-            context.set_source_rgba(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3])
+            context.set_source_rgba(self.secondary.get_red(),self.secondary.get_green(),self.secondary.get_blue(),self.secondary.get_alpha())
             context.set_operator(cairo.OPERATOR_SOURCE)
             context.fill()
             #if the context is filled blank the pixels wont edit properly for bucket fill
             #The hacky solution is to copy the black pixels to a temporary array
             #Paint new pixels, and then copy the blank ones back in.
-            if self.bg_col[3] == 0:
+            if self.secondary.get_alpha() == 0:
                 t_data = data[:]
                 context = cairo.Context(self.surface)
                 context.paint()
                 data[:] = t_data[:]
             self.swap_buffers()
-
 
     def paste(self):
         image = self.clipboard.wait_for_image()
@@ -542,7 +530,6 @@ class Canvas(gtk.DrawingArea):
                 context.fill()
             context.translate(-self.width, 0)
 
-
     def __draw_scaling_points(self, context):
         # Set the scaling points' color
 
@@ -558,7 +545,6 @@ class Canvas(gtk.DrawingArea):
 
         # Corner scaling point
         self.__draw_scaling_point(context, self.width, self.height)
-
 
     def __draw_scaling_point(self, context, x, y):
         # Base color

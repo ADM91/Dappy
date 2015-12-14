@@ -1773,7 +1773,7 @@
                         <property name="can_focus">True</property>
                         <property name="adjustment">primary_alpha_adj</property>
                         <property name="draw_value">False</property>
-                        <signal name="value-changed" handler="change_primary_alpha" swapped="no"/>
+                        <signal name="value-changed" handler="change_alpha_slider" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1788,7 +1788,7 @@
                         <property name="can_focus">True</property>
                         <property name="adjustment">secondary_alpha_adj</property>
                         <property name="draw_value">False</property>
-                        <signal name="value-changed" handler="change_secondary_alpha" swapped="no"/>
+                        <signal name="value-changed" handler="change_alpha_slider" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1833,16 +1833,15 @@
     </child>
   </object>
   <object class="GtkAdjustment" id="primary_alpha_adj">
-    <property name="upper">265</property>
-    <property name="value">265</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
+    <property name="upper">1</property>
+    <property name="value">1</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">0.10000000000000001</property>
   </object>
   <object class="GtkAdjustment" id="secondary_alpha_adj">
-    <property name="upper">265</property>
-    <property name="value">265</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="upper">1</property>
+    <property name="value">1</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">0.10000000000000001</property>
   </object>
 </interface>

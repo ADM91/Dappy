@@ -74,15 +74,15 @@ class Tool(gtk.Object):
 
     def use_primary_color(self, context, button=1):
         if button==3:
-            self.__use_color(context, self.secondary)
+            self.__use_color(context, self.canvas.secondary)
         else:
-            self.__use_color(context, self.primary)
+            self.__use_color(context, self.canvas.primary)
 
     def use_secondary_color(self, context, button=1):
         if button==3:
-            self.__use_color(context, self.primary)
+            self.__use_color(context, self.canvas.primary)
         else:
-            self.__use_color(context, self.secondary)
+            self.__use_color(context, self.canvas.secondary)
 
     def use_fill_color(self, context, button=1):
         if self.canvas.fig_fill_type==0:
@@ -91,12 +91,6 @@ class Tool(gtk.Object):
             self.use_primary_color(context, button)
         else:
             self.__use_no_color(context)
-
-    def set_primary_color(self, color):
-        self.primary = color
-
-    def set_secondary_color(self, color):
-        self.secondary = color
 
     def commit(self):
         self.mode = self.DRAWING

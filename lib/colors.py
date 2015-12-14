@@ -40,7 +40,6 @@ class ColorCell(gtk.DrawingArea):
         self.connect("button-press-event", self.clicked)
         self.connect("expose-event", self.expose)
 
-
     def expose(self, widget, event):
         context = widget.window.cairo_create()
 
@@ -69,25 +68,31 @@ class ColorCell(gtk.DrawingArea):
         context.set_source_surface(self.gloss)
         context.paint()
 
-
     def swap_buffers(self):
-        rect = gtk.gdk.Rectangle(0, 0, self.WIDTH, self.HEIGHT)
-        self.window.invalidate_rect(rect, True)
-
-
-    def set_color(self, color):
-        self.color = color
-
         try:
             rect = gtk.gdk.Rectangle(0, 0, self.WIDTH, self.HEIGHT)
             self.window.invalidate_rect(rect, True)
         except:
             pass
 
+    def set_color(self, color):
+        self.color = color
+        self.swap_buffers()
+
+    def set_color_vals(self,color):
+        self.color.set_color_vals(color)
+        self.swap_buffers()
+
+    def set_alpha(self,alpha):
+        self.color.set_alpha(alpha)
+        self.swap_buffers()
+
+    def set_rgba(self, red, green, blue, alpha):
+        self.color.set_rgba(red, green, blue, alpha)
+        self.swap_buffers()
 
     def get_color(self):
         return self.color.copy()
-
 
     def modify_color(self, color):
         csd = gtk.ColorSelectionDialog("Choose a color")
@@ -96,16 +101,13 @@ class ColorCell(gtk.DrawingArea):
         cs.set_property("current-color", self.color.to_gtk_color())
         ok = csd.run()
         if ok == gtk.RESPONSE_OK:
-            self.set_color(RGBAColor.create_from_gtk_color(cs.get_current_color()))
+            self.set_color_vals(RGBAColor.create_from_gtk_color(cs.get_current_color()))
         csd.destroy()
-
 
     def clicked(self, widget, event):
         if event.type == gtk.gdk._2BUTTON_PRESS:
             self.modify_color(widget)
-
         self.emit("color-changed-event", event)
-
 
     def to_string(self):
         return "ColorCell: " + self.color.to_string()
@@ -115,42 +117,32 @@ class RGBAColor:
     def __init__(self, red=0, green=0, blue=0, alpha=1):
         self.set_rgba(red, green, blue, alpha)
 
-
     def get_red(self):
         return self.red
-
 
     def get_green(self):
         return self.green
 
-
     def get_blue(self):
         return self.blue
-
 
     def get_alpha(self):
         return self.alpha
 
-
     def set_red(self, red):
         self.red = max(min(red, 1), 0)
-
 
     def set_green(self, green):
         self.green = max(min(green, 1), 0)
 
-
     def set_blue(self, blue):
         self.blue = max(min(blue, 1), 0)
-
 
     def set_alpha(self, alpha):
         self.alpha = max(min(alpha, 1), 0)
 
-
     def get_rgba(self):
         return self.red, self.green, self.blue, self.alpha
-
 
     def set_rgba(self, red, green, blue, alpha):
         self.set_red(red)
@@ -158,27 +150,27 @@ class RGBAColor:
         self.set_blue(blue)
         self.set_alpha(alpha)
 
-
     def get_rgb(self):
         return self.red, self.green, self.blue
-
 
     def set_rgb(self, red, green, blue):
         self.set_rgba(red, green, blue, 1.0)
 
+    def set_color_vals(self,color):
+        self.red = color.get_red()
+        self.green = color.get_green()
+        self.blue = color.get_blue()
+        self.alpha = color.get_alpha()
 
     def to_string(self):
         return "(" + str(self.red) + ", " + str(self.green) + ", " + str(self.blue) + ", " + str(self.alpha) + ")"
 
-
     def copy(self):
         return RGBAColor(self.red, self.green, self.blue, self.alpha)
-
 
     def to_gtk_color(self):
         # TODO: use proper values
         return gtk.gdk.color_parse("#f00")
-
 
     def create_from_gtk_color(gtk_color):
         string = gtk_color.to_string()
@@ -189,7 +181,6 @@ class RGBAColor:
 
         return RGBAColor(red, green, blue)
     create_from_gtk_color = Callable(create_from_gtk_color)
-
 
     def color_parse(color):
         return RGBAColor.create_from_gtk_color(gtk.gdk.color_parse(color))

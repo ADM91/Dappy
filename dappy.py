@@ -37,8 +37,6 @@ class Dappy():
     filename = None
     path = None
     FileHandler = None
-    primary = None
-    secondary = None
 
 
     def __init__(self, path, image_filename=None):
@@ -54,11 +52,6 @@ class Dappy():
         else:
             self.filename = None
             self.path = path
-
-        # Initialize colors
-        self.primary = RGBAColor(0, 0, 0, 1)
-        self.secondary = RGBAColor(1, 1, 1, 1)
-        self.canvas.bg_col = self.secondary.get_rgba()
 
         # Defining tools
         self.TOOLS = {"draw-rounded-rectangle" : tools.RoundedRectangleTool(self.canvas),
@@ -78,28 +71,6 @@ class Dappy():
 
     def change_tool(self, toolname):
         self.canvas.set_active_tool(self.TOOLS[toolname])
-
-
-    def set_primary_color(self, c):
-        self.primary = c
-        for tool in self.TOOLS.values():
-            tool.set_primary_color(c)
-
-
-    def set_secondary_color(self, c):
-        self.secondary = c
-        for tool in self.TOOLS.values():
-            tool.set_secondary_color(c)
-        self.canvas.bg_col = self.secondary.get_rgba()
-
-
-    def get_primary_color(self):
-        return self.primary
-
-
-    def get_secondary_color(self):
-        return self.secondary
-
 
     def set_current_info(self, image_info):
         if image_info == None:
