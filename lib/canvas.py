@@ -479,9 +479,9 @@ class FancyCanvas(Canvas):
         self.CANVAS_V_SCALER = tools.VerticalScalingTool(self)
 
         # Useful constants
-        self.RIGHT_SCALING_POINT = 0
         self.CORNER_SCALING_POINT = 1
-        self.BOTTOM_SCALING_POINT = 2
+        self.RIGHT_SCALING_POINT = 2
+        self.BOTTOM_SCALING_POINT = 3
         self.SCALING_SIDE_POINTS_MIN_SIZE = 20
 
         # Previous tool (to recover from a rescale)
@@ -508,59 +508,32 @@ class FancyCanvas(Canvas):
         # When the click is outside the canvas, a scaling point might have been
         # clicked.
         if event.x >= self.width or event.y >= self.height:
-            if self.width < self.SCALING_SIDE_POINTS_MIN_SIZE and self.height < self.SCALING_SIDE_POINTS_MIN_SIZE:
-                if self.__over_scaling_point(self.CORNER_SCALING_POINT, event):
+            sp = self.__over_scaling_point(event)
+            if sp != 0:
+                if sp == self.CORNER_SCALING_POINT:
                     self.active_tool = self.CANVAS_B_SCALER
-                else:
-                    self.active_tool = self.DUMMY_TOOL
-            elif self.width < self.SCALING_SIDE_POINTS_MIN_SIZE:
-                if self.__over_scaling_point(self.RIGHT_SCALING_POINT, event):
+                elif sp == self.RIGHT_SCALING_POINT:
                     self.active_tool = self.CANVAS_H_SCALER
-                elif self.__over_scaling_point(self.CORNER_SCALING_POINT, event):
-                    self.active_tool = self.CANVAS_B_SCALER
-                else:
-                    self.active_tool = self.DUMMY_TOOL
-            elif self.height < self.SCALING_SIDE_POINTS_MIN_SIZE:
-                if self.__over_scaling_point(self.BOTTOM_SCALING_POINT, event):
+                elif sp == self.BOTTOM_SCALING_POINT:
                     self.active_tool = self.CANVAS_V_SCALER
-                elif self.__over_scaling_point(self.CORNER_SCALING_POINT, event):
-                    self.active_tool = self.CANVAS_B_SCALER
-                else:
-                    self.active_tool = self.DUMMY_TOOL
-            else:
-                if self.__over_scaling_point(self.BOTTOM_SCALING_POINT, event):
-                    self.active_tool = self.CANVAS_V_SCALER
-                elif self.__over_scaling_point(self.RIGHT_SCALING_POINT, event):
-                    self.active_tool = self.CANVAS_H_SCALER
-                elif self.__over_scaling_point(self.CORNER_SCALING_POINT, event):
-                    self.active_tool = self.CANVAS_B_SCALER
                 else:
                     self.active_tool = self.DUMMY_TOOL
             if self.active_tool.name != 'NotSet':
                 super(FancyCanvas, self).button_pressed(widget, event)
-
         else:
             super(FancyCanvas, self).button_pressed(widget, event)
 
-
-    def __over_scaling_point(self, point, event):
-        if point == self.CORNER_SCALING_POINT:
-            if self.width < event.x < self.width + self.RSS + 2:
-                if self.height-2 < event.y < self.height + self.RSS + 3:
-                    return True
-
-        if point == self.BOTTOM_SCALING_POINT:
-            if self.width/2-2 < event.x < self.width/2 + self.RSS + 2:
-                if self.height < event.y < self.height + self.RSS + 3:
-                    return True
-
-        if point == self.RIGHT_SCALING_POINT:
-            if self.width < event.x < self.width + self.RSS + 2:
-                if self.height/2 - 2 < event.y < self.height/2 + self.RSS + 3:
-                    return True
-
-        return False
-
+    def __over_scaling_point(self, event):
+        if self.width < event.x < self.width + self.RSS + 2:
+            if self.height-2 < event.y < self.height + self.RSS + 3:
+                return self.CORNER_SCALING_POINT
+        if self.width < event.x < self.width + self.RSS + 2:
+            if self.height/2 - 2 < event.y < self.height/2 + self.RSS + 3:
+                return self.RIGHT_SCALING_POINT
+        if self.width/2-2 < event.x < self.width/2 + self.RSS + 2:
+            if self.height < event.y < self.height + self.RSS + 3:
+                return self.BOTTOM_SCALING_POINT
+        return 0
 
     def button_released(self, widget, event):
         super(FancyCanvas, self).button_released(widget, event)
@@ -568,14 +541,18 @@ class FancyCanvas(Canvas):
 
 
     def motion_event(self, widget, event):
-        if self.__over_scaling_point(self.CORNER_SCALING_POINT, event):
-            self.CANVAS_B_SCALER.select()
-        elif self.__over_scaling_point(self.RIGHT_SCALING_POINT, event):
-            self.CANVAS_H_SCALER.select()
-        elif self.__over_scaling_point(self.BOTTOM_SCALING_POINT, event):
-            self.CANVAS_V_SCALER.select()
-        else:
-            super(FancyCanvas, self).motion_event(widget, event)
+        if self.active_tool.mode != self.active_tool.DRAWING:
+            sp = self.__over_scaling_point(event)
+            if sp != 0:
+                if sp == self.CORNER_SCALING_POINT:
+                    self.CANVAS_B_SCALER.select()
+                elif sp == self.RIGHT_SCALING_POINT:
+                    self.CANVAS_H_SCALER.select()
+                elif sp == self.BOTTOM_SCALING_POINT:
+                    self.CANVAS_V_SCALER.select()
+            else:
+                super(FancyCanvas, self).motion_event(widget, event)
+
 
 
     def __draw_shadows(self, context):
