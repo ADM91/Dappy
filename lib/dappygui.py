@@ -38,6 +38,10 @@ class GUI():
     DAPPY = None
     builder = None
     block_tool_event = None
+    TB_MISC=0
+    TB_FIGURE=1
+    TB_AIRBRUSH=2
+    TB_SELECTION=3
 
     def __init__(self, dappy):
         self.DAPPY = dappy
@@ -83,11 +87,12 @@ class GUI():
         self.secondary_a_slide = self.builder.get_object("secondary-color-alpha")
         self.secondary_a_slide.set_value(self.secondary_a_slide.get_value())
 
-        #toolbar handels
-        self.fig_tb = self.builder.get_object("figure-toolbar")
-        self.airb_tb = self.builder.get_object("airbrush-toolbar")
-        self.sel_tb = self.builder.get_object("select-toolbar")
-        self.misc_tb = self.builder.get_object("misc-toolbar")
+        #context senstive toolbar handles
+        self.cntxt_toolbars = [self.builder.get_object("misc-toolbar")]
+        self.cntxt_toolbars.append(self.builder.get_object("figure-toolbar"))
+        self.cntxt_toolbars.append(self.builder.get_object("airbrush-toolbar"))
+        self.cntxt_toolbars.append(self.builder.get_object("select-toolbar"))
+
 
         #Fix spinners
         fig_lw = self.builder.get_object("figure-line-width")
@@ -244,29 +249,20 @@ class GUI():
 
     def change_2nd_toolbar(self,tool):
         if tool=="draw-rounded-rectangle" or tool=="draw-ellipse" or tool=="draw-rectangle":
-            self.fig_tb.show_all()
-            self.airb_tb.hide_all()
-            self.sel_tb.hide_all()
-            self.misc_tb.hide_all()
+            tbar = self.TB_FIGURE
             if tool=="draw-rounded-rectangle":
                 self.fig_cr.set_sensitive(True)
             else:
                 self.fig_cr.set_sensitive(False)
         elif tool=="airbrush":
-            self.fig_tb.hide_all()
-            self.airb_tb.show_all()
-            self.sel_tb.hide_all()
-            self.misc_tb.hide_all()
+            tbar = self.TB_AIRBRUSH
         elif tool=="rect-select":
-            self.fig_tb.hide_all()
-            self.airb_tb.hide_all()
-            self.sel_tb.show_all()
-            self.misc_tb.hide_all()
+            tbar = self.TB_SELECTION
         else:
-            self.fig_tb.hide_all()
-            self.airb_tb.hide_all()
-            self.sel_tb.hide_all()
-            self.misc_tb.show_all()
+            tbar = self.TB_MISC
+        for toolbar in self.cntxt_toolbars:
+            toolbar.hide_all()
+        self.cntxt_toolbars[tbar].show_all()
 
     def set_figure_fill(self,widget):
         if widget.get_active():
