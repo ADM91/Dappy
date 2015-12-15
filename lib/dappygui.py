@@ -24,9 +24,7 @@
 import gtk
 import gettext
 
-from colors import HSVGenerator
 from colors import ColorCell
-from colors import RGBAColor
 
 _ = gettext.gettext
 
@@ -114,7 +112,6 @@ class GUI():
         self.active_tool_button = None
         self.curr_tool.set_active(True)
 
-
     def __init_colors(self, colorsgrid):
         colors = colorsgrid.get_children()
         rows = colorsgrid.get_property("n-rows")
@@ -142,17 +139,12 @@ class GUI():
         colorcell.connect("color-changed-event", self.color_changed)
         color_frame.add(colorcell)
 
-        hsv = HSVGenerator()
-
         # The other colors
         for i in range(rows):
             for j in range(2, columns):
-                # Each cell is: frame{ eventbox{label} }
                 color_frame = colors[i*columns + j]
-                color = hsv.get_hsv_color(360*(j-2)/(columns-2), 1.0-0.7*i, 1.0)
-                colorcell = ColorCell()
+                colorcell = ColorCell(360*(j-2)/(columns-2), 1.0-0.7*i, 1.0,1.0,True)
                 colorcell.connect("color-changed-event", self.color_changed)
-                colorcell.set_color(RGBAColor.create_from_gtk_color(color))
                 color_frame.add(colorcell)
 
     def quit(self, window,event=-100):
@@ -175,11 +167,11 @@ class GUI():
 
     def color_changed(self, widget, event):
         if widget==self.primary:
-            self.primary.modify_color(widget)
+            self.primary.modify_color()
             c = widget.get_color()
             self.primary.set_color_vals(c)
         elif widget==self.secondary:
-            self.secondary.modify_color(widget)
+            self.secondary.modify_color()
             c = widget.get_color()
             self.secondary.set_color_vals(c)
         elif widget==self.swap_cols:
@@ -330,7 +322,6 @@ class GUI():
 
     def redo(self, widget):
         self.DAPPY.canvas.redo()
-
 
     def undo(self, widget):
         self.DAPPY.canvas.undo()

@@ -37,8 +37,6 @@ class Tool(gtk.Object):
 
     def __init__(self, canvas):
         self.canvas = canvas
-        self.primary = RGBAColor(0, 0, 0)
-        self.secondary = RGBAColor(1, 1, 1)
         self.mode = self.READY
         self.set_cursor()
 
@@ -234,9 +232,9 @@ class BucketFillTool(Tool):
         data = surface.get_data()
 
         if button==3:
-            pc=self.secondary
+            pc=self.canvas.secondary
         else:
-            pc = self.primary
+            pc = self.canvas.primary
         act_px = int(y*s+x*bpp)
         orr_c = data[act_px:act_px+bpp]
         rep_c = create_string_buffer(bpp)
@@ -370,9 +368,9 @@ class AirBrushTool(PencilTool):
         super(AirBrushTool, self).begin(x, y,button)
         self.Brush = cairo.ImageSurface.create_from_png("Brushes/AirBrush.png")
         if button==3:
-            pc=self.secondary
+            pc=self.canvas.secondary
         else:
-            pc = self.primary
+            pc = self.canvas.primary
         a = pc.get_alpha()
         r = pc.get_red()
         g = pc.get_green()

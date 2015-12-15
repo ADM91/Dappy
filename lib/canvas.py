@@ -77,8 +77,8 @@ class Canvas(gtk.DrawingArea):
         self.UNDO_BUFFER = undoBuffer()
 
         self.set_size(550, 412)
-        self.ALPHA_PATTERN = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("GUI/alpha-pattern.png"))
-        self.ALPHA_PATTERN.set_extend(cairo.EXTEND_REPEAT)
+        self.alpha_pattern = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("GUI/alpha-pattern.png"))
+        self.alpha_pattern.set_extend(cairo.EXTEND_REPEAT)
 
         self.bg_init=0
         self.primary = RGBAColor(0, 0, 0, 1)
@@ -217,7 +217,7 @@ class Canvas(gtk.DrawingArea):
         wincontext.rectangle(0, 0, self.width, self.height)
         wincontext.clip()
         #paint alpha pattern over whole clipped region
-        wincontext.set_source(self.ALPHA_PATTERN)
+        wincontext.set_source(self.alpha_pattern)
         wincontext.paint()
         #paint
         wincontext.set_source_surface(tmp_surf)
@@ -290,7 +290,7 @@ class Canvas(gtk.DrawingArea):
         self.surface = surface
         self.set_size(surface.get_width(), surface.get_height())
 
-    def get_color(self):
+    def get_color(self):#used by color_pick_event callback
         return self.picker_col
 
     def undo(self):
