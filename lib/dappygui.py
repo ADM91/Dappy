@@ -205,7 +205,7 @@ class GUI():
                         self.block_tool_event = True
                         prevtool.set_active(False)
                         self.block_tool_event = False
-                    self.DAPPY.change_tool(toolname)
+                    self.DAPPY.canvas.set_active_tool(toolname)
                     self.change_2nd_toolbar(toolname)
             else:
                 self.block_tool_event = True

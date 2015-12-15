@@ -20,13 +20,12 @@
 import cairo
 import gtk
 import gobject
-import math
 from ctypes import create_string_buffer
 import tools
 from colors import RGBAColor
 from dappygui import senstivity_data
 
-class undoBuffer:
+class UndoBuffer:
     n_buf = 5
     cur_buf = 0
     n_buf_full = 0
@@ -47,15 +46,17 @@ class undoBuffer:
         return (self.cur_buf-1)%(self.n_buf+1)
 
 class Canvas(gtk.DrawingArea):
-    DEFAULT_CURSOR = gtk.gdk.Cursor(gtk.gdk.ARROW)
+    CORNER_SCALING_POINT = 1
+    RIGHT_SCALING_POINT = 2
+    BOTTOM_SCALING_POINT = 3
     active_tool = None
     picker_col = None
     bg_init=None
-    UNDO_BUFFER = None
+    undo_buffer = None
     select_active = None
     modified = None
     fig_fill_type = None
-    MARGIN = None
+    margin_size = None
     RSS = None
     primary = None
     secondary = None
@@ -64,9 +65,9 @@ class Canvas(gtk.DrawingArea):
         # Initializing gtk.DrawingArea superclass
         super(Canvas, self).__init__()
         # Resize Square Size
-        self.RSS = 5
+        self.RSS = 7
         # Margin (to draw shadows and resize squares)
-        self.MARGIN = 20
+        self.margin_size = 20
         # Registering events
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.BUTTON1_MOTION_MASK | gtk.gdk.DRAG_MOTION | gtk.gdk.POINTER_MOTION_MASK)
         self.connect("button-press-event", self.button_pressed)
@@ -74,7 +75,8 @@ class Canvas(gtk.DrawingArea):
         self.connect("expose-event", self.expose)
         self.connect("motion-notify-event", self.motion_event)
 
-        self.UNDO_BUFFER = undoBuffer()
+        self.undo_buffer = UndoBuffer()
+        self.modified = False
 
         self.set_size(550, 412)
         self.alpha_pattern = cairo.SurfacePattern(cairo.ImageSurface.create_from_png("GUI/alpha-pattern.png"))
@@ -87,18 +89,11 @@ class Canvas(gtk.DrawingArea):
         self.figure_linewidth=0
         self.figure_corner_radius=0
         self.airbrush_width=0
+        self.fig_fill_type = 0
 
         self.set_selection(False)
         self.select_xp = None
         self.select_yp = None
-
-        self.fig_fill_type = 0
-
-        self.modified = False
-
-        # Basic tools
-        self.DUMMY_TOOL = tools.Tool(self)
-        self.active_tool = self.DUMMY_TOOL
 
         # Surface is the image in the canvas
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.width, self.height)
@@ -115,29 +110,30 @@ class Canvas(gtk.DrawingArea):
         self.TR_CORNER_SHADOW = cairo.ImageSurface.create_from_png(str)
         self.side_alpha_channels = [0.4, 0.39, 0.37, 0.32, 0.24, 0.16, 0.08, 0.04, 0.01]
 
-        # Detecting decorations' color
-        aux = gtk.Window()
-        aux.realize()
-        self.DECORATIONS_COLOR = aux.get_style().bg[gtk.STATE_SELECTED]
+        self.toolchest = {
+                      "draw-rounded-rectangle" : tools.RoundedRectangleTool(self),
+                      "draw-rectangle"         : tools.RectangleTool(self),
+                      "straight-line"          : tools.StraightLineTool(self),
+                      "pencil"                 : tools.PencilTool(self),
+                      "paintbrush"             : tools.PaintbrushTool(self),
+                      "bucket-fill"            : tools.BucketFillTool(self),
+                      "eraser"                 : tools.EraserTool(self),
+                      "draw-ellipse"           : tools.EllipseTool(self),
+                      "color-picker"           : tools.ColorPickerTool(self),
+                      "rect-select"            : tools.RectangleSelectTool(self),
+                      "airbrush"               : tools.AirBrushTool(self),
+                      "canvas-both-scale"      : tools.BothScalingTool(self),
+                      "canvas-hor-scale"       : tools.HorizontalScalingTool(self),
+                      "canvas-ver-scale"       : tools.VerticalScalingTool(self),
+                      "dummy_tool"             : tools.Tool(self)}
 
-        # Canvas Tools
-        self.CANVAS_B_SCALER = tools.BothScalingTool(self)
-        self.CANVAS_H_SCALER = tools.HorizontalScalingTool(self)
-        self.CANVAS_V_SCALER = tools.VerticalScalingTool(self)
-
-        # Useful constants
-        self.CORNER_SCALING_POINT = 1
-        self.RIGHT_SCALING_POINT = 2
-        self.BOTTOM_SCALING_POINT = 3
-        self.SCALING_SIDE_POINTS_MIN_SIZE = 20
-
-        # Previous tool (to recover from a rescale)
-        self.previous_tool = self.active_tool
+        self.active_tool = self.toolchest["dummy_tool"]
+        self.previous_tool = self.active_tool# Previous tool (to recover from a rescale)
 
     def set_size(self, width, height):
         self.width = max(width, 1)
         self.height = max(height, 1)
-        self.set_size_request(self.width + self.MARGIN, self.height + self.MARGIN)
+        self.set_size_request(self.width + self.margin_size, self.height + self.margin_size)
 
     def get_width(self):
         return self.width
@@ -145,8 +141,8 @@ class Canvas(gtk.DrawingArea):
     def get_height(self):
         return self.height
 
-    def set_active_tool(self, tool):
-        self.active_tool = tool
+    def set_active_tool(self, toolname):
+        self.active_tool = self.toolchest[toolname]
 
     def button_pressed(self, widget, event):
         self.previous_tool = self.active_tool
@@ -155,13 +151,13 @@ class Canvas(gtk.DrawingArea):
         if event.x >= self.width or event.y >= self.height:
             sp = self.__over_scaling_point(event)
             if sp == self.CORNER_SCALING_POINT:
-                self.active_tool = self.CANVAS_B_SCALER
+                self.active_tool = self.toolchest["canvas-both-scale"]
             elif sp == self.RIGHT_SCALING_POINT:
-                self.active_tool = self.CANVAS_H_SCALER
+                self.active_tool = self.toolchest["canvas-hor-scale"]
             elif sp == self.BOTTOM_SCALING_POINT:
-                self.active_tool = self.CANVAS_V_SCALER
+                self.active_tool = self.toolchest["canvas-ver-scale"]
             else:
-                self.active_tool = self.DUMMY_TOOL
+                self.active_tool = self.toolchest["dummy_tool"]
         if self.active_tool.name != 'NotSet':
             if event.type == gtk.gdk.BUTTON_PRESS:
                 self.active_tool.begin(event.x, event.y,event.button)
@@ -182,15 +178,15 @@ class Canvas(gtk.DrawingArea):
             sp = self.__over_scaling_point(event)
             if sp != 0:
                 if sp == self.CORNER_SCALING_POINT:
-                    self.CANVAS_B_SCALER.select()
+                    self.toolchest["canvas-both-scale"].select()
                 elif sp == self.RIGHT_SCALING_POINT:
-                    self.CANVAS_H_SCALER.select()
+                    self.toolchest["canvas-hor-scale"].select()
                 elif sp == self.BOTTOM_SCALING_POINT:
-                    self.CANVAS_V_SCALER.select()
+                    self.toolchest["canvas-ver-scale"].select()
             else:
                 self.active_tool.select()
                 if event.x > self.width or event.y > self.height:
-                    self.window.set_cursor(self.DEFAULT_CURSOR)
+                    self.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.ARROW))
         else:
             self.active_tool.move(event.x, event.y)
             if self.active_tool.name == "ColorPicker":
@@ -294,49 +290,49 @@ class Canvas(gtk.DrawingArea):
         return self.picker_col
 
     def undo(self):
-        if self.UNDO_BUFFER.n_buf_full>0:
+        if self.undo_buffer.n_buf_full>0:
             self.modified=True
             self.update_undo_buffer(0)
-            buf = self.UNDO_BUFFER.prev_buf()
+            buf = self.undo_buffer.prev_buf()
             data = self.surface.get_data()
             w = self.surface.get_width()
             h = self.surface.get_height()
-            bw = self.UNDO_BUFFER.width[buf]
-            bh = self.UNDO_BUFFER.height[buf]
+            bw = self.undo_buffer.width[buf]
+            bh = self.undo_buffer.height[buf]
             if bh!=h | bw!=w:
                 self.set_size(bw,bh)
                 self.print_tool()
                 data = self.surface.get_data()
-            data[:] = self.UNDO_BUFFER.Buffer[buf][:]
-            self.UNDO_BUFFER.n_buf_full -=1
-            if self.UNDO_BUFFER.redos_allowed<self.UNDO_BUFFER.n_buf:
-                self.UNDO_BUFFER.redos_allowed += 1
-            self.UNDO_BUFFER.cur_buf = buf
+            data[:] = self.undo_buffer.Buffer[buf][:]
+            self.undo_buffer.n_buf_full -=1
+            if self.undo_buffer.redos_allowed<self.undo_buffer.n_buf:
+                self.undo_buffer.redos_allowed += 1
+            self.undo_buffer.cur_buf = buf
             self.swap_buffers()
             self.emit("change_sensitivty", senstivity_data('redo',True))
-            if self.UNDO_BUFFER.n_buf_full==0:
+            if self.undo_buffer.n_buf_full==0:
                 self.emit("change_sensitivty", senstivity_data('undo',False))
 
     def redo(self):
-        if self.UNDO_BUFFER.redos_allowed>0:
+        if self.undo_buffer.redos_allowed>0:
             self.modified=True
-            buf = self.UNDO_BUFFER.next_buf()
+            buf = self.undo_buffer.next_buf()
             data = self.surface.get_data()
             w = self.surface.get_width()
             h = self.surface.get_height()
-            bw = self.UNDO_BUFFER.width[buf]
-            bh = self.UNDO_BUFFER.height[buf]
+            bw = self.undo_buffer.width[buf]
+            bh = self.undo_buffer.height[buf]
             if bh!=h | bw!=w:
                 self.set_size(bw,bh)
                 self.print_tool()
                 data = self.surface.get_data()
-            data[:] = self.UNDO_BUFFER.Buffer[buf][:]
-            self.UNDO_BUFFER.redos_allowed -=1
-            self.UNDO_BUFFER.n_buf_full +=1
-            self.UNDO_BUFFER.cur_buf = buf
+            data[:] = self.undo_buffer.Buffer[buf][:]
+            self.undo_buffer.redos_allowed -=1
+            self.undo_buffer.n_buf_full +=1
+            self.undo_buffer.cur_buf = buf
             self.swap_buffers()
             self.emit("change_sensitivty", senstivity_data('undo',True))
-            if self.UNDO_BUFFER.redos_allowed==0:
+            if self.undo_buffer.redos_allowed==0:
                 self.emit("change_sensitivty", senstivity_data('redo',False))
 
     def update_undo_buffer(self,iterate):
@@ -345,25 +341,25 @@ class Canvas(gtk.DrawingArea):
         h = self.surface.get_height()
         s = self.surface.get_stride()
         data = self.surface.get_data()
-        buf = self.UNDO_BUFFER.cur_buf
-        self.UNDO_BUFFER.Buffer[buf] = create_string_buffer(s*h)
-        self.UNDO_BUFFER.Buffer[buf][:] = data[:]
-        self.UNDO_BUFFER.width[buf] = w
-        self.UNDO_BUFFER.height[buf] = h
+        buf = self.undo_buffer.cur_buf
+        self.undo_buffer.Buffer[buf] = create_string_buffer(s*h)
+        self.undo_buffer.Buffer[buf][:] = data[:]
+        self.undo_buffer.width[buf] = w
+        self.undo_buffer.height[buf] = h
         if iterate==1:
             self.emit("change_sensitivty", senstivity_data('undo',True))
             self.emit("change_sensitivty", senstivity_data('redo',False))
-            self.UNDO_BUFFER.redos_allowed = 0
-            if self.UNDO_BUFFER.n_buf_full<self.UNDO_BUFFER.n_buf:
-                self.UNDO_BUFFER.n_buf_full += 1
-            self.UNDO_BUFFER.cur_buf = self.UNDO_BUFFER.next_buf()
+            self.undo_buffer.redos_allowed = 0
+            if self.undo_buffer.n_buf_full<self.undo_buffer.n_buf:
+                self.undo_buffer.n_buf_full += 1
+            self.undo_buffer.cur_buf = self.undo_buffer.next_buf()
 
     def clear_undo_buffer(self):
         self.emit("change_sensitivty", senstivity_data('undo',False))
         self.emit("change_sensitivty", senstivity_data('redo',False))
-        self.UNDO_BUFFER.cur_buf = 0
-        self.UNDO_BUFFER.n_buf_full = 0
-        self.UNDO_BUFFER.redos_allowed = 0
+        self.undo_buffer.cur_buf = 0
+        self.undo_buffer.n_buf_full = 0
+        self.undo_buffer.redos_allowed = 0
 
     def copy(self,cut):
         data = self.surface.get_data()
@@ -531,56 +527,37 @@ class Canvas(gtk.DrawingArea):
             context.translate(-self.width, 0)
 
     def __draw_scaling_points(self, context):
-        # Set the scaling points' color
-
         # Right scaling point
-        if self.height > self.SCALING_SIDE_POINTS_MIN_SIZE:
-            self.__draw_scaling_point(context, self.width,
-               int(math.floor(self.height/2)))
-
+        if self.height > self.RSS*4:
+            self.__draw_scaling_point(context, self.width,(self.height-self.RSS)/2)
         # Bottom scaling point
-        if self.width > self.SCALING_SIDE_POINTS_MIN_SIZE:
-            self.__draw_scaling_point(context, int(math.floor(self.width/2)),
-               self.height)
-
+        if self.width > self.RSS*4:
+            self.__draw_scaling_point(context, (self.width-self.RSS)/2,self.height)
         # Corner scaling point
         self.__draw_scaling_point(context, self.width, self.height)
 
     def __draw_scaling_point(self, context, x, y):
-        # Base color
-        context.set_source_color(self.DECORATIONS_COLOR)
-        context.rectangle(x, y, self.RSS+2, self.RSS+2)
+        # Dark border
+        context.set_source_rgba(0.156, 0.402, 0546, 1)
+        context.rectangle(x+1, y+1, self.RSS-1, self.RSS-1)
         context.fill()
-
-        # Darker
-        context.set_source_rgba(0, 0, 0, 0.4)
-        context.rectangle(x, y, self.RSS+2, self.RSS+2)
+        # Light border
+        context.set_source_rgba(.556, .802, .946, 1)
+        context.rectangle(x, y, self.RSS-1, self.RSS-1)
         context.fill()
-
-        # Base color
-        context.set_source_color(self.DECORATIONS_COLOR)
-        context.rectangle(x, y, self.RSS+1, self.RSS+1)
-        context.fill()
-
-        # Lighter
-        context.set_source_rgba(1, 1, 1, 0.4)
-        context.rectangle(x, y, self.RSS+1, self.RSS+1)
-        context.fill()
-
         # The point itself
-        context.set_source_color(self.DECORATIONS_COLOR)
-        context.rectangle(x+1, y+1, self.RSS, self.RSS)
+        context.set_source_rgba(.26,.67,.91,1.0)
+        context.rectangle(x+1, y+1, self.RSS-2, self.RSS-2)
         context.fill()
 
     def __over_scaling_point(self, event):
-        if self.width < event.x < self.width + self.RSS + 2:
-            if self.height-2 < event.y < self.height + self.RSS + 3:
+        if self.width < event.x+1 < self.width + self.RSS:
+            if self.height < event.y+1 < self.height + self.RSS:
                 return self.CORNER_SCALING_POINT
-        if self.width < event.x < self.width + self.RSS + 2:
-            if self.height/2 - 2 < event.y < self.height/2 + self.RSS + 3:
+            elif (self.height-self.RSS)/2 < event.y+1 < (self.height+self.RSS)/2:
                 return self.RIGHT_SCALING_POINT
-        if self.width/2-2 < event.x < self.width/2 + self.RSS + 2:
-            if self.height < event.y < self.height + self.RSS + 3:
+        elif self.height < event.y+1 < self.height + self.RSS:
+            if (self.width-self.RSS)/2 < event.x+1 < (self.width+self.RSS)/2:
                 return self.BOTTOM_SCALING_POINT
         return 0
 

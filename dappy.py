@@ -20,31 +20,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-# Import packages
-
 import gtk
 import gettext
 import os
 import sys
 
-
-
 _ = gettext.gettext
 
 class Dappy():
     canvas = None
-
     filename = None
     path = None
     FileHandler = None
-
 
     def __init__(self, path, image_filename=None):
 
         # Initialize canvas
         self.canvas = Canvas()
         self.FileHandler = FileIO()
-
         # Load image information
         if image_filename != None:
             info = self.FileHandler.read(os.path.abspath(image_filename))
@@ -52,34 +45,15 @@ class Dappy():
         else:
             self.filename = None
             self.path = path
-
-        # Defining tools
-        self.TOOLS = {"draw-rounded-rectangle" : tools.RoundedRectangleTool(self.canvas),
-                      "draw-rectangle"  : tools.RectangleTool(self.canvas),
-                      "straight-line"   : tools.StraightLineTool(self.canvas),
-                      "pencil"          : tools.PencilTool(self.canvas),
-                      "paintbrush"      : tools.PaintbrushTool(self.canvas),
-                      "bucket-fill"     : tools.BucketFillTool(self.canvas),
-                      "eraser"          : tools.EraserTool(self.canvas),
-                      "draw-ellipse"    : tools.EllipseTool(self.canvas),
-                      "color-picker"    : tools.ColorPickerTool(self.canvas),
-                      "rect-select"     : tools.RectangleSelectTool(self.canvas),
-                      "airbrush"        : tools.AirBrushTool(self.canvas)}
-
         self.canvas.clear_overlay()
         self.canvas.print_tool()
-
-    def change_tool(self, toolname):
-        self.canvas.set_active_tool(self.TOOLS[toolname])
 
     def set_current_info(self, image_info):
         if image_info == None:
             return
-
         canonical_filename = image_info[0]
         self.canvas.set_image(image_info[1])
         self.fix_image_info(canonical_filename)
-
 
     def fix_image_info(self, canonical_filename):
         if canonical_filename == None:
@@ -101,8 +75,6 @@ if __name__ == "__main__":
     from dappygui import GUI
     from canvas import Canvas
     from file_io import FileIO
-    from colors import RGBAColor
-    import tools
     app = Dappy(default_path, filename)
     gui = GUI(app)
 
