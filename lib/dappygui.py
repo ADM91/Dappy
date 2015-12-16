@@ -50,7 +50,6 @@ class GUI():
         self.DAPPY.canvas.connect("change_sensitivty", self.set_sensitivity)
         self.builder = gtk.Builder()
         self.builder.add_from_file("GUI/dappy.xml")
-        #os.path.join(os.path.dirname( os.path.realpath( __file__ ) ) + "glade" + os.sep + "dappy.xml")
 
         # Get the window properly
         self.window = self.builder.get_object("main-window")
